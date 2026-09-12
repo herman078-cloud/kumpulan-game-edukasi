@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>⚡ TKJ CYBER MISSION: NETWORK WARS</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+:root{
+--bg:#05060f;--cyan:#00f0ff;--purple:#b000ff;--green:#00ff88;--red:#ff003c;
+--yellow:#ffe600;--pink:#ff00aa;--dark:#0a0c1a;--card:#0d1025;--border:#1a1e3a;
+}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:#fff;overflow-x:hidden;min-height:100vh;}
+canvas#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
+.scanlines{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;
+background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,240,255,0.015) 2px,rgba(0,240,255,0.015) 4px);}
+.screen{display:none;position:relative;z-index:10;min-height:100vh;padding:20px;max-width:900px;margin:0 auto;animation:fadeIn .5s ease;}
+.screen.active{display:flex;flex-direction:column;align-items:center;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glitch{0%{text-shadow:2px 0 var(--cyan),-2px 0 var(--purple)}25%{text-shadow:-2px 0 var(--cyan),2px 0 var(--purple)}50%{text-shadow:2px 2px var(--cyan),-2px -2px var(--purple)}75%{text-shadow:-2px 2px var(--purple),2px -2px var(--cyan)}100%{text-shadow:2px 0 var(--cyan),-2px 0 var(--purple)}}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 5px var(--cyan),0 0 15px var(--cyan),0 0 30px rgba(0,240,255,0.3)}50%{box-shadow:0 0 10px var(--cyan),0 0 25px var(--cyan),0 0 50px rgba(0,240,255,0.5)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes comboFlash{0%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:0.8}100%{transform:scale(1);opacity:0}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes hpDrain{from{background-position:0 0}to{background-position:200% 0}}
+h1.title{font-family:'Orbitron',monospace;font-size:clamp(1.8rem,5vw,3.5rem);text-align:center;color:var(--cyan);
+text-shadow:0 0 10px var(--cyan),0 0 30px var(--cyan),0 0 60px rgba(0,240,255,0.4);animation:glitch 3s infinite;margin-bottom:5px;letter-spacing:3px;}
+h2.subtitle{font-family:'Orbitron',monospace;font-size:clamp(0.9rem,2.5vw,1.4rem);color:var(--purple);text-shadow:0 0 10px var(--purple);margin-bottom:30px;text-align:center;letter-spacing:5px;}
+.btn{font-family:'Orbitron',monospace;padding:14px 32px;font-size:clamp(0.8rem,2vw,1rem);border:2px solid var(--cyan);
+background:rgba(0,240,255,0.05);color:var(--cyan);cursor:pointer;border-radius:4px;transition:all .3s;
+text-transform:uppercase;letter-spacing:2px;position:relative;overflow:hidden;min-width:200px;text-align:center;}
+.btn:hover{background:rgba(0,240,255,0.15);box-shadow:0 0 20px rgba(0,240,255,0.4);transform:translateY(-2px);}
+.btn:active{transform:scale(0.97);}
+.btn.purple{border-color:var(--purple);color:var(--purple);background:rgba(176,0,255,0.05);}
+.btn.purple:hover{background:rgba(176,0,255,0.15);box-shadow:0 0 20px rgba(176,0,255,0.4);}
+.btn.green{border-color:var(--green);color:var(--green);background:rgba(0,255,136,0.05);}
+.btn.green:hover{background:rgba(0,255,136,0.15);box-shadow:0 0 20px rgba(0,255,136,0.4);}
+.btn.red{border-color:var(--red);color:var(--red);background:rgba(255,0,60,0.05);}
+.btn.red:hover{background:rgba(255,0,60,0.15);box-shadow:0 0 20px rgba(255,0,60,0.4);}
+.btn.small{padding:8px 16px;font-size:0.75rem;min-width:auto;}
+.btn:disabled{opacity:0.3;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;width:100%;max-width:700px;margin-top:20px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center;
+transition:all .3s;cursor:pointer;position:relative;overflow:hidden;}
+.card:hover{border-color:var(--cyan);box-shadow:0 0 20px rgba(0,240,255,0.2);transform:translateY(-3px);}
+.card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+background:linear-gradient(90deg,transparent,rgba(0,240,255,0.05),transparent);transition:.5s;}
+.card:hover::before{left:100%;}
+.card h3{font-family:'Orbitron',monospace;color:var(--cyan);font-size:0.9rem;margin-bottom:8px;}
+.card p{color:#8892b0;font-size:0.85rem;}
+.card .icon{font-size:2rem;margin-bottom:10px;display:block;}
+.hud{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(5,6,15,0.95);border-bottom:1px solid var(--border);
+padding:8px 20px;display:none;justify-content:space-between;align-items:center;backdrop-filter:blur(10px);}
+.hud.active{display:flex;}
+.hud-item{display:flex;align-items:center;gap:6px;font-family:'Orbitron',monospace;font-size:clamp(0.6rem,1.5vw,0.8rem);}
+.hud-item .label{color:#556;font-size:0.65rem;}
+.hud-item .value{color:var(--cyan);text-shadow:0 0 5px var(--cyan);}
+.hud-item .value.coins{color:var(--yellow);}
+.hud-item .value.combo{color:var(--pink);}
+.progress-bar{width:100%;height:8px;background:var(--dark);border-radius:4px;overflow:hidden;border:1px solid var(--border);margin-top:4px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border-radius:4px;transition:width .5s ease;position:relative;}
+.progress-fill::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:hpDrain 2s linear infinite;background-size:200% 100%;}
+.xp-section{width:100%;max-width:400px;}
+.question-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:25px;width:100%;
+max-width:700px;margin:15px 0;position:relative;}
+.question-box h3{font-family:'Orbitron',monospace;color:var(--cyan);font-size:0.85rem;margin-bottom:15px;line-height:1.6;}
+.options{display:grid;gap:10px;width:100%;}
+.opt-btn{padding:14px 20px;background:rgba(0,240,255,0.03);border:1px solid var(--border);border-radius:6px;
+color:#ccd;font-size:0.95rem;cursor:pointer;transition:all .3s;text-align:left;font-family:'Rajdhani',sans-serif;}
+.opt-btn:hover{border-color:var(--cyan);background:rgba(0,240,255,0.08);color:#fff;}
+.opt-btn.correct{border-color:var(--green)!important;background:rgba(0,255,136,0.15)!important;color:var(--green)!important;
+box-shadow:0 0 20px rgba(0,255,136,0.3);animation:neonPulse .5s;}
+.opt-btn.wrong{border-color:var(--red)!important;background:rgba(255,0,60,0.15)!important;color:var(--red)!important;animation:shake .3s;}
+.feedback{margin-top:15px;padding:15px;border-radius:6px;font-size:0.9rem;display:none;animation:slideUp .3s ease;}
+.feedback.show{display:block;}
+.feedback.correct{background:rgba(0,255,136,0.1);border:1px solid var(--green);color:var(--green);}
+.feedback.wrong{background:rgba(255,0,60,0.1);border:1px solid var(--red);color:var(--red);}
+.timer-bar{width:100%;height:6px;background:var(--dark);border-radius:3px;margin:10px 0;overflow:hidden;}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:width .1s linear;border-radius:3px;}
+.combo-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;
+font-size:clamp(2rem,6vw,4rem);color:var(--yellow);text-shadow:0 0 20px var(--yellow),0 0 40px var(--yellow);
+z-index:200;pointer-events:none;animation:comboFlash 1s ease forwards;}
+.levelup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:300;
+display:none;justify-content:center;align-items:center;flex-direction:column;animation:fadeIn .5s;}
+.levelup-overlay.active{display:flex;}
+.levelup-overlay h1{font-family:'Orbitron',monospace;font-size:clamp(2rem,6vw,4rem);color:var(--yellow);
+text-shadow:0 0 30px var(--yellow);animation:float 1s ease infinite;margin-bottom:10px;}
+.levelup-overlay h2{font-family:'Orbitron',monospace;color:var(--cyan);font-size:clamp(1rem,3vw,1.5rem);margin-bottom:5px;}
+.levelup-overlay p{color:var(--green);font-size:1.1rem;margin-bottom:20px;}
+.netbot-container{width:100%;max-width:700px;text-align:center;margin:10px 0;}
+.netbot-avatar{width:120px;height:120px;margin:0 auto 10px;background:var(--card);border:2px solid var(--purple);
+border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3rem;
+box-shadow:0 0 30px rgba(176,0,255,0.3);position:relative;}
+.netbot-avatar.damaged{animation:shake .3s;border-color:var(--red);box-shadow:0 0 30px rgba(255,0,60,0.5);}
+.hp-bar{width:100%;max-width:300px;height:20px;background:var(--dark);border:1px solid var(--border);
+border-radius:10px;margin:0 auto;overflow:hidden;position:relative;}
+.hp-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--yellow),var(--green));transition:width .5s;border-radius:10px;}
+.hp-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Orbitron',monospace;font-size:0.7rem;color:#fff;text-shadow:0 0 5px #000;}
+.build-area{width:100%;max-width:700px;min-height:300px;background:var(--card);border:1px solid var(--border);
+border-radius:8px;padding:20px;position:relative;margin:10px 0;}
+.device-palette{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;justify-content:center;}
+.device-item{padding:10px 15px;background:rgba(0,240,255,0.05);border:1px solid var(--cyan);border-radius:6px;
+cursor:grab;font-size:0.8rem;color:var(--cyan);font-family:'Orbitron',monospace;user-select:none;transition:all .2s;}
+.device-item:active{cursor:grabbing;transform:scale(0.95);}
+.device-item.placed{opacity:0.3;cursor:not-allowed;}
+.drop-zone{width:100%;min-height:200px;border:2px dashed var(--border);border-radius:8px;display:flex;
+flex-wrap:wrap;gap:10px;padding:15px;align-content:flex-start;transition:all .3s;}
+.drop-zone.drag-over{border-color:var(--cyan);background:rgba(0,240,255,0.03);}
+.dropped-device{padding:8px 12px;background:rgba(0,255,136,0.1);border:1px solid var(--green);border-radius:4px;
+font-size:0.75rem;color:var(--green);font-family:'Orbitron',monospace;cursor:pointer;position:relative;}
+.dropped-device .remove{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:var(--red);
+border-radius:50%;font-size:0.6rem;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.cable-game{width:100%;max-width:700px;}
+.rj45-visual{display:flex;gap:3px;justify-content:center;margin:15px 0;padding:15px;background:var(--card);
+border:1px solid var(--border);border-radius:8px;}
+.pin-slot{width:clamp(25px,5vw,40px);height:clamp(50px,8vw,70px);border:2px solid var(--border);border-radius:3px 3px 0 0;
+display:flex;align-items:center;justify-content:center;font-size:0.5rem;color:#556;transition:all .3s;flex-direction:column;}
+.pin-slot.filled{border-color:var(--green);}
+.pin-slot .wire{width:80%;height:60%;border-radius:2px;margin-bottom:3px;}
+.color-palette{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:15px 0;}
+.color-wire{padding:8px 12px;border-radius:4px;cursor:pointer;font-size:0.7rem;font-weight:700;
+border:2px solid transparent;transition:all .2s;user-select:none;}
+.color-wire:hover{transform:scale(1.05);}
+.color-wire.used{opacity:0.3;cursor:not-allowed;}
+.color-wire.selected{border-color:#fff;transform:scale(1.1);}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;width:100%;max-width:700px;}
+.badge{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:15px;text-align:center;transition:all .3s;}
+.badge.earned{border-color:var(--yellow);box-shadow:0 0 15px rgba(255,230,0,0.2);}
+.badge.locked{opacity:0.4;filter:grayscale(1);}
+.badge .badge-icon{font-size:2rem;margin-bottom:5px;}
+.badge .badge-name{font-family:'Orbitron',monospace;font-size:0.65rem;color:var(--cyan);}
+.leaderboard-table{width:100%;max-width:700px;border-collapse:collapse;margin:15px 0;}
+.leaderboard-table th{font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--cyan);padding:10px;
+border-bottom:1px solid var(--border);text-align:left;}
+.leaderboard-table td{padding:10px;border-bottom:1px solid rgba(26,30,58,0.5);font-size:0.85rem;}
+.leaderboard-table tr:hover td{background:rgba(0,240,255,0.03);}
+.rank-1{color:var(--yellow);text-shadow:0 0 5px var(--yellow);}
+.rank-2{color:#c0c0c0;}
+.rank-3{color:#cd7f32;}
+.teacher-panel{width:100%;max-width:700px;}
+.teacher-panel input,.teacher-panel select{background:var(--dark);border:1px solid var(--border);color:#fff;
+padding:10px;border-radius:4px;font-family:'Rajdhani',sans-serif;width:100%;margin:5px 0;}
+.teacher-panel input:focus,.teacher-panel select:focus{outline:none;border-color:var(--cyan);}
+.student-list{width:100%;margin:10px 0;}
+.student-row{display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);font-size:0.85rem;}
+.mute-btn{position:fixed;bottom:20px;right:20px;z-index:150;width:40px;height:40px;border-radius:50%;
+background:var(--card);border:1px solid var(--border);color:var(--cyan);cursor:pointer;font-size:1.2rem;
+display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.mute-btn:hover{border-color:var(--cyan);box-shadow:0 0 10px rgba(0,240,255,0.3);}
+.story-text{max-width:600px;text-align:center;color:#8892b0;font-size:1rem;line-height:1.8;margin:15px 0;}
+.story-text span{color:var(--cyan);font-weight:700;}
+.mission-header{text-align:center;margin-bottom:15px;}
+.mission-header h2{font-family:'Orbitron',monospace;color:var(--cyan);font-size:clamp(1rem,3vw,1.5rem);margin-bottom:5px;}
+.mission-header p{color:#556;font-size:0.85rem;}
+.step-indicator{display:flex;gap:5px;margin:10px 0;}
+.step-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:all .3s;}
+.step-dot.active{background:var(--cyan);box-shadow:0 0 10px var(--cyan);}
+.step-dot.done{background:var(--green);}
+.input-group{margin:10px 0;width:100%;max-width:400px;}
+.input-group label{font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--cyan);display:block;margin-bottom:5px;}
+.input-group input{width:100%;padding:12px;background:var(--dark);border:1px solid var(--border);color:#fff;
+border-radius:4px;font-size:1rem;font-family:'Rajdhani',sans-serif;}
+.input-group input:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 10px rgba(0,240,255,0.2);}
+.tabs{display:flex;gap:5px;margin-bottom:15px;flex-wrap:wrap;justify-content:center;}
+.tab{padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:4px;cursor:pointer;
+font-family:'Orbitron',monospace;font-size:0.7rem;color:#556;transition:all .3s;}
+.tab.active{border-color:var(--cyan);color:var(--cyan);background:rgba(0,240,255,0.05);}
+.room-code{font-family:'Orbitron',monospace;font-size:2rem;color:var(--yellow);text-shadow:0 0 10px var(--yellow);
+letter-spacing:5px;margin:10px 0;}
+@media(max-width:600px){
+.menu-grid{grid-template-columns:1fr;}
+.hud{flex-wrap:wrap;gap:5px;padding:5px 10px;}
+.hud-item{font-size:0.6rem;}
+.btn{padding:12px 20px;font-size:0.75rem;min-width:160px;}
+.question-box{padding:15px;}
+}
+.hidden{display:none!important;}
+.text-center{text-align:center;}
+.mt-10{margin-top:10px;}.mt-20{margin-top:20px;}.mb-10{margin-bottom:10px;}.mb-20{margin-bottom:20px;}
+.w-full{width:100%;}
+.flex-center{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;}
+.glow-text{text-shadow:0 0 10px currentColor;}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="scanlines"></div>
+
+<div class="hud" id="hud">
+<div class="hud-item"><span class="label">LVL</span><span class="value" id="hudLevel">1</span></div>
+<div class="hud-item"><span class="label">RANK</span><span class="value" id="hudRank" style="color:var(--green)">ROOKIE</span></div>
+<div class="hud-item xp-section">
+<span class="label">XP</span><span class="value" id="hudXP">0</span>
+<div class="progress-bar"><div class="progress-fill" id="hudXPBar" style="width:0%"></div></div>
+</div>
+<div class="hud-item"><span class="label">🪙</span><span class="value coins" id="hudCoins">0</span></div>
+<div class="hud-item"><span class="label">COMBO</span><span class="value combo" id="hudCombo">x0</span></div>
+<button class="btn small" onclick="goHome()" style="padding:5px 10px;font-size:0.6rem;">☰ MENU</button>
+</div>
+
+<!-- MAIN MENU -->
+<div class="screen active" id="screenMenu">
+<div style="margin-top:clamp(30px,8vh,80px)"></div>
+<h1 class="title">⚡ TKJ CYBER MISSION</h1>
+<h2 class="subtitle">NETWORK WARS</h2>
+<p class="story-text">Kamu adalah <span>Junior Network Engineer</span> yang baru bergabung dengan tim <span>Cyber Network</span>. Sekolah mengalami gangguan jaringan total. Internet mati, komputer tidak terhubung, server down. Hanya kamu yang bisa memperbaiki semuanya!</p>
+<div class="input-group" style="max-width:300px;margin:15px auto;">
+<label>MASUKKAN NAMA AGENT</label>
+<input type="text" id="playerNameInput" placeholder="Nama kamu..." maxlength="15">
+</div>
+<div class="menu-grid">
+<div class="card" onclick="startMission()"><span class="icon">🎮</span><h3>START MISSION</h3><p>Mulai misi penyelamatan jaringan</p></div>
+<div class="card" onclick="showScreen('screenTraining')"><span class="icon">📚</span><h3>TRAINING</h3><p>Pelajari dasar-dasar TKJ</p></div>
+<div class="card" onclick="showScreen('screenLab')"><span class="icon">🔬</span><h3>NETWORK LAB</h3><p>Latihan bebas semua mode</p></div>
+<div class="card" onclick="showScreen('screenAchievements')"><span class="icon">🏆</span><h3>ACHIEVEMENTS</h3><p>Lihat badge & pencapaianmu</p></div>
+<div class="card" onclick="showScreen('screenLeaderboard')"><span class="icon">📊</span><h3>LEADERBOARD</h3><p>Kompetisi antar siswa</p></div>
+<div class="card" onclick="showScreen('screenHowTo')"><span class="icon">❓</span><h3>HOW TO PLAY</h3><p>Cara bermain</p></div>
+<div class="card" onclick="showScreen('screenTeacher')"><span class="icon">👨‍🏫</span><h3>TEACHER MODE</h3><p>Panel khusus guru</p></div>
+</div>
+</div>
+
+<!-- HOW TO PLAY -->
+<div class="screen" id="screenHowTo">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">❓ HOW TO PLAY</h1>
+<div class="question-box" style="text-align:left;line-height:2;color:#aab;">
+<p>⚡ <strong style="color:var(--cyan)">MISI:</strong> Selesaikan 6 mode permainan untuk memperbaiki jaringan sekolah.</p>
+<p>🔌 <strong style="color:var(--cyan)">Network Repair:</strong> Jawab pertanyaan troubleshooting jaringan.</p>
+<p>🌐 <strong style="color:var(--cyan)">IP Challenge:</strong> Tentukan Network ID, Host ID, dan kelas IP.</p>
+<p>🖥️ <strong style="color:var(--cyan)">Build Network:</strong> Susun perangkat jaringan yang benar.</p>
+<p>🔧 <strong style="color:var(--cyan)">Cable Master:</strong> Urutkan warna kabel UTP T568A/T568B.</p>
+<p>🧠 <strong style="color:var(--cyan)">OSI Battle:</strong> Kalahkan NET-BOT dengan menjawab soal OSI Layer.</p>
+<p>🚨 <strong style="color:var(--cyan)">Troubleshooting:</strong> Ikuti langkah Check → Identify → Fix → Test.</p>
+<p>🔥 <strong style="color:var(--yellow)">COMBO:</strong> Jawab benar berturut-turut untuk bonus XP!</p>
+<p>📈 <strong style="color:var(--green)">LEVEL UP:</strong> Kumpulkan XP untuk naik level dan rank.</p>
+</div>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- TRAINING -->
+<div class="screen" id="screenTraining">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">📚 TRAINING MODE</h1>
+<div class="tabs" id="trainingTabs"></div>
+<div class="question-box" id="trainingContent" style="text-align:left;line-height:1.8;color:#aab;"></div>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- NETWORK LAB -->
+<div class="screen" id="screenLab">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">🔬 NETWORK LAB</h1>
+<p class="story-text">Pilih mode latihan yang ingin kamu mainkan:</p>
+<div class="menu-grid">
+<div class="card" onclick="launchMode(0)"><span class="icon">🔌</span><h3>NETWORK REPAIR</h3></div>
+<div class="card" onclick="launchMode(1)"><span class="icon">🌐</span><h3>IP CHALLENGE</h3></div>
+<div class="card" onclick="launchMode(2)"><span class="icon">🖥️</span><h3>BUILD NETWORK</h3></div>
+<div class="card" onclick="launchMode(3)"><span class="icon">🔧</span><h3>CABLE MASTER</h3></div>
+<div class="card" onclick="launchMode(4)"><span class="icon">🧠</span><h3>OSI BATTLE</h3></div>
+<div class="card" onclick="launchMode(5)"><span class="icon">🚨</span><h3>TROUBLESHOOT</h3></div>
+</div>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- GAME SCREEN (Generic for all modes) -->
+<div class="screen" id="screenGame">
+<div class="mission-header">
+<h2 id="gameTitle">MISSION</h2>
+<p id="gameSubtitle">Complete the objective</p>
+</div>
+<div class="step-indicator" id="stepIndicator"></div>
+<div class="timer-bar hidden" id="timerBarContainer"><div class="timer-fill" id="timerFill"></div></div>
+<div id="gameArea" class="w-full flex-center" style="flex-direction:column;align-items:center;"></div>
+<div id="feedbackArea"></div>
+<div class="flex-center mt-20" id="gameButtons"></div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="screen" id="screenAchievements">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">🏆 ACHIEVEMENTS</h1>
+<div class="badge-grid" id="badgeGrid"></div>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="screen" id="screenLeaderboard">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">📊 LEADERBOARD</h1>
+<div class="tabs">
+<div class="tab active" onclick="showLBTab('global')">GLOBAL</div>
+<div class="tab" onclick="showLBTab('class')">KELAS</div>
+</div>
+<table class="leaderboard-table" id="lbTable">
+<thead><tr><th>RANK</th><th>NAMA</th><th>LEVEL</th><th>XP</th><th>BADGE</th></tr></thead>
+<tbody id="lbBody"></tbody>
+</table>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- TEACHER MODE -->
+<div class="screen" id="screenTeacher">
+<h1 class="title" style="font-size:clamp(1.2rem,3vw,2rem)">👨‍🏫 TEACHER MODE</h1>
+<div class="teacher-panel">
+<div class="card mb-20" style="text-align:left;">
+<h3 style="color:var(--cyan);margin-bottom:10px;">BUAT ROOM SESSION</h3>
+<div class="input-group"><label>KODE ROOM</label><input type="text" id="roomCodeGen" readonly></div>
+<div class="input-group"><label>MATERI</label>
+<select id="teacherTopic"><option value="all">Semua Materi</option><option value="network">Dasar Jaringan</option><option value="ip">IP Address</option><option value="cable">Kabel & Crimping</option><option value="osi">OSI Layer</option><option value="trouble">Troubleshooting</option></select>
+</div>
+<div class="input-group"><label>KESULITAN</label>
+<select id="teacherDiff"><option value="easy">Mudah</option><option value="medium">Sedang</option><option value="hard">Sulit</option></select>
+</div>
+<div class="input-group"><label>JUMLAH SOAL</label><input type="number" id="teacherQCount" value="10" min="5" max="30"></div>
+<button class="btn green small mt-10" onclick="createRoom()">GENERATE ROOM</button>
+</div>
+<div class="card" style="text-align:left;">
+<h3 style="color:var(--cyan);margin-bottom:10px;">DATA SISWA</h3>
+<div id="studentDataList" class="student-list"></div>
+<button class="btn purple small mt-10" onclick="exportData()">EXPORT DATA</button>
+</div>
+</div>
+<button class="btn mt-20" onclick="goHome()">KEMBALI</button>
+</div>
+
+<!-- LEVEL UP OVERLAY -->
+<div class="levelup-overlay" id="levelUpOverlay">
+<h1>🎉 LEVEL UP!</h1>
+<h2 id="newLevelText">LEVEL 2</h2>
+<p id="newRankText">Cable Technician</p>
+<p id="newSkillText">NEW SKILL UNLOCKED!</p>
+<button class="btn green" onclick="closeLevelUp()">CONTINUE</button>
+</div>
+
+<!-- COMBO POPUP -->
+<div class="combo-popup hidden" id="comboPopup"></div>
+
+<!-- MUTE BUTTON -->
+<button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+
+<script>
+// ==================== AUDIO ENGINE ====================
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx, isMuted = false;
+function initAudio(){if(!audioCtx)audioCtx=new AudioCtx();}
+function playTone(freq,dur,type='sine',vol=0.15){
+if(isMuted||!audioCtx)return;try{
+const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur);
+}catch(e){}}
+function sfxClick(){playTone(800,0.08,'square',0.08);}
+function sfxCorrect(){playTone(523,0.1,'sine',0.12);setTimeout(()=>playTone(659,0.1,'sine',0.12),100);setTimeout(()=>playTone(784,0.2,'sine',0.12),200);}
+function sfxWrong(){playTone(200,0.3,'sawtooth',0.1);setTimeout(()=>playTone(150,0.3,'sawtooth',0.1),150);}
+function sfxLevelUp(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,0.2,'sine',0.15),i*120));}
+function sfxCombo(){playTone(1200,0.1,'square',0.1);setTimeout(()=>playTone(1500,0.15,'square',0.1),80);}
+function sfxTick(){playTone(1000,0.03,'square',0.05);}
+function sfxWin(){[523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>playTone(f,0.3,'sine',0.12),i*150));}
+function sfxDamage(){playTone(100,0.2,'sawtooth',0.15);playTone(80,0.3,'square',0.1);}
+function toggleMute(){isMuted=!isMuted;document.getElementById('muteBtn').textContent=isMuted?'🔇':'🔊';}
+
+// ==================== BACKGROUND CANVAS ====================
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+let particles=[];
+function resizeCanvas(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+window.addEventListener('resize',resizeCanvas);resizeCanvas();
+class Particle{
+constructor(){this.reset();}
+reset(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;
+this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;
+this.size=Math.random()*2+0.5;this.alpha=Math.random()*0.5+0.1;
+this.color=['#00f0ff','#b000ff','#00ff88'][Math.floor(Math.random()*3)];}
+update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width||this.y<0||this.y>canvas.height)this.reset();}
+draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=this.color;ctx.globalAlpha=this.alpha;ctx.fill();ctx.globalAlpha=1;}
+}
+for(let i=0;i<80;i++)particles.push(new Particle());
+function drawGrid(){
+ctx.strokeStyle='rgba(0,240,255,0.03)';ctx.lineWidth=1;
+const s=50;for(let x=0;x<canvas.width;x+=s){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+for(let y=0;y<canvas.height;y+=s){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+}
+function animateBG(){
+ctx.clearRect(0,0,canvas.width,canvas.height);drawGrid();
+particles.forEach(p=>{p.update();p.draw();});
+for(let i=0;i<particles.length;i++){for(let j=i+1;j<particles.length;j++){
+const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+if(dist<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);
+ctx.strokeStyle=`rgba(0,240,255,${0.05*(1-dist/120)})`;ctx.stroke();}}}
+requestAnimationFrame(animateBG);
+}
+animateBG();
+
+// ==================== GAME STATE ====================
+const LEVELS=[
+{name:'Network Rookie',xp:0},{name:'Cable Technician',xp:500},{name:'Network Explorer',xp:1500},
+{name:'Junior Network Engineer',xp:3000},{name:'Network Specialist',xp:5500},{name:'Cyber Network Master',xp:9000}
+];
+const BADGES_DEF=[
+{id:'cable_master',name:'Cable Master',icon:'🏅',desc:'Selesaikan Cable Master'},
+{id:'ip_expert',name:'IP Expert',icon:'🌐',desc:'Selesaikan IP Challenge'},
+{id:'net_builder',name:'Network Builder',icon:'🔌',desc:'Selesaikan Build Network'},
+{id:'osi_master',name:'OSI Master',icon:'🧠',desc:'Kalahkan NET-BOT'},
+{id:'troubleshooter',name:'Troubleshooter',icon:'🚨',desc:'Selesaikan Troubleshooting'},
+{id:'legend',name:'TKJ Legend',icon:'👑',desc:'Capai Level 6'},
+{id:'combo3',name:'Combo x3',icon:'🔥',desc:'Raih combo 3'},
+{id:'combo5',name:'Super Combo',icon:'⚡',desc:'Raih combo 5'},
+{id:'combo10',name:'God Mode',icon:'💥',desc:'Raih combo 10'}
+];
+let state={
+name:'',xp:0,coins:0,level:1,combo:0,maxCombo:0,
+badges:[],completedModes:[],correctAnswers:0,wrongAnswers:0,totalAnswered:0,
+leaderboard:[]
+};
+function saveState(){localStorage.setItem('tkj_cyber_state',JSON.stringify(state));}
+function loadState(){
+const s=localStorage.getItem('tkj_cyber_state');
+if(s){state=JSON.parse(s);document.getElementById('playerNameInput').value=state.name;}
+}
+loadState();
+function getLevel(xp){let l=1;for(let i=LEVELS.length-1;i>=0;i--){if(xp>=LEVELS[i].xp){l=i+1;break;}}return Math.min(l,6);}
+function getXPProgress(){
+const cur=LEVELS[state.level-1].xp;const next=state.level<6?LEVELS[state.level].xp:LEVELS[5].xp;
+if(state.level>=6)return 100;return Math.min(100,((state.xp-cur)/(next-cur))*100);
+}
+function addXP(amount){
+const comboMult=state.combo>=10?3:state.combo>=5?2:state.combo>=3?1.5:1;
+const gained=Math.floor(amount*comboMult);
+state.xp+=gained;state.coins+=Math.floor(gained/10);
+const newLevel=getLevel(state.xp);
+if(newLevel>state.level){state.level=newLevel;showLevelUp();}
+else{updateHUD();}
+saveState();return gained;
+}
+function addCombo(){
+state.combo++;if(state.combo>state.maxCombo)state.maxCombo=state.combo;
+if(state.combo>=10)earnBadge('combo10');else if(state.combo>=5)earnBadge('combo5');else if(state.combo>=3)earnBadge('combo3');
+if(state.combo>=3)showComboPopup();
+updateHUD();
+}
+function resetCombo(){state.combo=0;updateHUD();}
+function earnBadge(id){if(!state.badges.includes(id)){state.badges.push(id);saveState();}}
+function updateHUD(){
+document.getElementById('hudLevel').textContent=state.level;
+document.getElementById('hudRank').textContent=LEVELS[state.level-1].name.toUpperCase().split(' ').pop();
+document.getElementById('hudXP').textContent=state.xp;
+document.getElementById('hudXPBar').style.width=getXPProgress()+'%';
+document.getElementById('hudCoins').textContent=state.coins;
+document.getElementById('hudCombo').textContent='x'+state.combo;
+document.getElementById('hudCombo').style.color=state.combo>=10?'var(--yellow)':state.combo>=5?'var(--pink)':state.combo>=3?'var(--red)':'var(--purple)';
+}
+function showComboPopup(){
+const el=document.getElementById('comboPopup');
+let txt=state.combo>=10?'💥 NETWORK GOD MODE!':state.combo>=5?'⚡ SUPER COMBO x'+state.combo+'!':'🔥 COMBO x'+state.combo+'!';
+el.textContent=txt;el.classList.remove('hidden');el.style.animation='none';el.offsetHeight;el.style.animation='comboFlash 1.5s ease forwards';
+sfxCombo();setTimeout(()=>el.classList.add('hidden'),1500);
+}
+function showLevelUp(){
+sfxLevelUp();
+document.getElementById('newLevelText').textContent='LEVEL '+state.level;
+document.getElementById('newRankText').textContent=LEVELS[state.level-1].name;
+document.getElementById('newSkillText').textContent=state.level>=6?'👑 ALL SKILLS MAXED!':'NEW SKILL UNLOCKED!';
+document.getElementById('levelUpOverlay').classList.add('active');
+if(state.level>=6)earnBadge('legend');
+updateHUD();
+}
+function closeLevelUp(){document.getElementById('levelUpOverlay').classList.remove('active');}
+
+// ==================== NAVIGATION ====================
+function showScreen(id){
+initAudio();sfxClick();
+document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+const hudScreens=['screenGame'];
+document.getElementById('hud').classList.toggle('active',hudScreens.includes(id)||currentMode>=0);
+}
+function goHome(){
+currentMode=-1;clearInterval(gameTimer);
+showScreen('screenMenu');document.getElementById('hud').classList.remove('active');
+}
+function startMission(){
+const nameInput=document.getElementById('playerNameInput').value.trim();
+if(!nameInput){alert('Masukkan nama agent terlebih dahulu!');return;}
+state.name=nameInput;saveState();
+document.getElementById('hud').classList.add('active');updateHUD();
+missionIndex=0;runMissionSequence();
+}
+let missionIndex=0,currentMode=-1,gameTimer=null;
+const MODE_NAMES=['🔌 NETWORK REPAIR','🌐 IP ADDRESS CHALLENGE','🖥️ BUILD YOUR NETWORK','🔧 CABLE MASTER','🧠 OSI BATTLE','🚨 TROUBLESHOOTING'];
+const MODE_DESCS=['Perbaiki masalah jaringan','Tentukan informasi IP Address','Susun topologi jaringan','Crimping kabel UTP','Kalahkan NET-BOT!','Diagnosa masalah jaringan'];
+function runMissionSequence(){
+if(missionIndex>=6){
+showScreen('screenMenu');
+document.getElementById('hud').classList.add('active');
+alert('🎉 SELAMAT! Semua misi selesai! Jaringan sekolah telah pulih!');return;
+}
+launchMode(missionIndex,true);
+}
+function launchMode(modeIdx,isMission=false){
+initAudio();currentMode=modeIdx;
+showScreen('screenGame');
+document.getElementById('hud').classList.add('active');updateHUD();
+document.getElementById('gameTitle').textContent=MODE_NAMES[modeIdx];
+document.getElementById('gameSubtitle').textContent=MODE_DESCS[modeIdx];
+document.getElementById('feedbackArea').innerHTML='';
+document.getElementById('gameButtons').innerHTML='';
+switch(modeIdx){
+case 0:startNetworkRepair();break;case 1:startIPChallenge();break;
+case 2:startBuildNetwork();break;case 3:startCableMaster();break;
+case 4:startOSIBattle();break;case 5:startTroubleshooting();break;
+}
+}
+function completeMode(){
+if(!state.completedModes.includes(currentMode)){state.completedModes.push(currentMode);
+const badges=['net_builder','ip_expert','net_builder','cable_master','osi_master','troubleshooter'];
+earnBadge(badges[currentMode]);}
+saveState();
+if(missionIndex===currentMode){missionIndex++;setTimeout(()=>runMissionSequence(),1500);}
+}
+
+// ==================== QUESTION BANKS ====================
+const Q_REPAIR=[
+{q:"Komputer A tidak dapat terhubung ke jaringan. Kabel LAN sudah terpasang. Apa yang harus diperiksa terlebih dahulu?",opts:["Apakah NIC/LAN Card berfungsi","Apakah monitor menyala","Apakah keyboard terpasang","Apakah speaker aktif"],ans:0,exp:"Langkah pertama troubleshooting fisik adalah memeriksa NIC/LAN Card apakah berfungsi dan terdeteksi oleh sistem."},
+{q:"Beberapa komputer di lab tidak bisa mengakses internet, tetapi bisa saling ping. Masalahnya kemungkinan ada pada...",opts:["Router/Gateway","Switch","Kabel UTP","Monitor"],ans:0,exp:"Jika komputer bisa saling ping (komunikasi lokal berhasil) tapi tidak bisa ke internet, masalahnya ada di Router atau Gateway."},
+{q:"Perintah apa yang digunakan untuk menguji koneksi ke komputer lain di jaringan?",opts:["ping","format","dir","copy"],ans:0,exp:"Perintah 'ping' digunakan untuk menguji konektivitas jaringan antara dua perangkat menggunakan protokol ICMP."},
+{q:"Lampu indikator pada port switch tidak menyala saat kabel LAN dicolokkan. Kemungkinan penyebabnya adalah...",opts:["Kabel UTP rusak atau belum tercrimping dengan benar","RAM komputer penuh","Hardisk error","Monitor rusak"],ans:0,exp:"Lampu indikator switch yang mati menandakan tidak ada koneksi fisik. Periksa kabel UTP dan crimping RJ45."},
+{q:"Apa fungsi utama dari Switch dalam jaringan komputer?",opts:["Menghubungkan beberapa perangkat dalam satu jaringan lokal","Menghubungkan jaringan ke internet","Menyimpan data server","Menampilkan gambar ke monitor"],ans:0,exp:"Switch berfungsi menghubungkan beberapa perangkat dalam satu jaringan LAN dan meneruskan frame berdasarkan MAC Address."},
+{q:"DHCP pada jaringan berfungsi untuk...",opts:["Memberikan IP Address secara otomatis kepada client","Mempercepat koneksi internet","Menyimpan file backup","Mengamankan jaringan dari virus"],ans:0,exp:"DHCP (Dynamic Host Configuration Protocol) memberikan konfigurasi IP secara otomatis termasuk IP, Subnet Mask, Gateway, dan DNS."},
+{q:"DNS berfungsi untuk...",opts:["Menerjemahkan nama domain menjadi IP Address","Mempercepat download","Mengatur bandwidth","Mengenkripsi data"],ans:0,exp:"DNS (Domain Name System) menerjemahkan nama domain seperti www.google.com menjadi alamat IP yang dipahami komputer."},
+{q:"Apa perbedaan utama antara Switch dan Router?",opts:["Switch untuk jaringan lokal, Router menghubungkan antar jaringan berbeda","Tidak ada perbedaan","Router lebih murah","Switch untuk internet saja"],ans:0,exp:"Switch bekerja di Layer 2 (MAC Address) untuk jaringan lokal, sedangkan Router bekerja di Layer 3 (IP Address) untuk menghubungkan jaringan berbeda."},
+{q:"Gateway dalam jaringan berfungsi sebagai...",opts:["Titik keluar masuk data ke jaringan lain","Penyimpan data utama","Pendingin server","Pengatur tegangan listrik"],ans:0,exp:"Gateway adalah titik akses (biasanya router) yang menjadi pintu keluar-masuk data dari satu jaringan ke jaringan lain."},
+{q:"Apa yang dimaksud dengan MAC Address?",opts:["Alamat fisik unik yang dimiliki setiap NIC","Alamat website","Password WiFi","Nama komputer"],ans:0,exp:"MAC Address (Media Access Control) adalah alamat fisik 48-bit yang unik dan tertanam pada setiap Network Interface Card (NIC)."}
+];
+const Q_IP=[
+{ip:"192.168.1.10",mask:"255.255.255.0",q:"Tentukan Network ID dari IP 192.168.1.10 / 255.255.255.0",opts:["192.168.1.0","192.168.0.0","192.0.0.0","10.0.0.0"],ans:0,exp:"Dengan subnet mask 255.255.255.0, 3 oktet pertama adalah network. Network ID = 192.168.1.0"},
+{ip:"192.168.1.10",mask:"255.255.255.0",q:"Tentukan Host ID dari IP 192.168.1.10 / 255.255.255.0",opts:["10","192.168.1","1.10","192"],ans:0,exp:"Host ID adalah bagian IP yang bukan network. Dengan mask 255.255.255.0, host ID = 10 (oktet terakhir)."},
+{ip:"192.168.1.10",mask:"255.255.255.0",q:"IP 192.168.1.10 termasuk jenis IP apa?",opts:["Private IP","Public IP","Broadcast IP","Loopback IP"],ans:0,exp:"192.168.x.x termasuk range Private IP Class C (192.168.0.0 - 192.168.255.255) yang digunakan untuk jaringan lokal."},
+{ip:"192.168.1.10",mask:"255.255.255.0",q:"IP 192.168.1.10 termasuk kelas IP apa?",opts:["Kelas C","Kelas A","Kelas B","Kelas D"],ans:0,exp:"IP yang dimulai dengan 192-223 termasuk Kelas C. Default subnet mask Kelas C adalah 255.255.255.0."},
+{ip:"10.0.0.5",mask:"255.0.0.0",q:"Tentukan Network ID dari IP 10.0.0.5 / 255.0.0.0",opts:["10.0.0.0","10.0.0.5","0.0.0.5","10.255.255.255"],ans:0,exp:"Mask 255.0.0.0 berarti hanya oktet pertama yang merupakan network. Network ID = 10.0.0.0"},
+{ip:"10.0.0.5",mask:"255.0.0.0",q:"IP 10.0.0.5 termasuk kelas IP apa?",opts:["Kelas A","Kelas B","Kelas C","Kelas D"],ans:0,exp:"IP yang dimulai dengan 1-126 termasuk Kelas A. Default mask Kelas A adalah 255.0.0.0."},
+{ip:"172.16.5.20",mask:"255.255.0.0",q:"Tentukan Network ID dari IP 172.16.5.20 / 255.255.0.0",opts:["172.16.0.0","172.0.0.0","172.16.5.0","172.16.5.20"],ans:0,exp:"Mask 255.255.0.0 berarti 2 oktet pertama adalah network. Network ID = 172.16.0.0"},
+{ip:"172.16.5.20",mask:"255.255.0.0",q:"IP 172.16.5.20 termasuk jenis IP apa?",opts:["Private IP","Public IP","Multicast IP","Loopback"],ans:0,exp:"172.16.0.0 - 172.31.255.255 adalah range Private IP Kelas B."},
+{ip:"8.8.8.8",mask:"255.255.255.0",q:"IP 8.8.8.8 (DNS Google) termasuk jenis IP apa?",opts:["Public IP","Private IP","Loopback IP","APIPA"],ans:0,exp:"8.8.8.8 adalah Public IP yang bisa diakses langsung dari internet. Ini adalah DNS publik milik Google."},
+{ip:"127.0.0.1",mask:"255.0.0.0",q:"Apa fungsi IP 127.0.0.1?",opts:["Loopback untuk testing komputer sendiri","Gateway default","DNS Server","Broadcast address"],ans:0,exp:"127.0.0.1 adalah Loopback Address yang digunakan untuk menguji stack TCP/IP pada komputer itu sendiri tanpa melalui jaringan."}
+];
+const Q_OSI=[
+{q:"Layer yang bertanggung jawab terhadap pengalamatan logis dan routing adalah?",opts:["Network Layer (Layer 3)","Physical Layer (Layer 1)","Data Link Layer (Layer 2)","Transport Layer (Layer 4)"],ans:0,exp:"Network Layer (Layer 3) menangani pengalamatan logis (IP Address) dan menentukan rute terbaik untuk pengiriman paket data."},
+{q:"Pada layer berapa MAC Address bekerja?",opts:["Data Link Layer (Layer 2)","Physical Layer (Layer 1)","Network Layer (Layer 3)","Session Layer (Layer 5)"],ans:0,exp:"MAC Address beroperasi di Data Link Layer (Layer 2) untuk komunikasi antar perangkat dalam satu jaringan lokal."},
+{q:"Layer mana yang mengubah data menjadi sinyal listrik/optik?",opts:["Physical Layer (Layer 1)","Data Link Layer (Layer 2)","Network Layer (Layer 3)","Application Layer (Layer 7)"],ans:0,exp:"Physical Layer (Layer 1) bertanggung jawab mentransmisikan bit mentah berupa sinyal listrik, cahaya, atau gelombang radio."},
+{q:"TCP dan UDP bekerja pada layer berapa?",opts:["Transport Layer (Layer 4)","Network Layer (Layer 3)","Session Layer (Layer 5)","Application Layer (Layer 7)"],ans:0,exp:"Transport Layer (Layer 4) menyediakan layanan transfer data end-to-end menggunakan protokol TCP (reliable) atau UDP (fast)."},
+{q:"HTTP, FTP, dan DNS bekerja pada layer berapa?",opts:["Application Layer (Layer 7)","Presentation Layer (Layer 6)","Transport Layer (Layer 4)","Network Layer (Layer 3)"],ans:0,exp:"Application Layer (Layer 7) adalah layer terdekat dengan user, menyediakan layanan jaringan seperti HTTP, FTP, DNS, SMTP."},
+{q:"Berapa jumlah total layer pada model OSI?",opts:["7","4","5","6"],ans:0,exp:"Model OSI memiliki 7 layer: Physical, Data Link, Network, Transport, Session, Presentation, Application."},
+{q:"Layer yang bertanggung jawab untuk enkripsi dan kompresi data adalah?",opts:["Presentation Layer (Layer 6)","Application Layer (Layer 7)","Session Layer (Layer 5)","Transport Layer (Layer 4)"],ans:0,exp:"Presentation Layer (Layer 6) menangani format data, enkripsi/dekripsi, dan kompresi/dekompresi."},
+{q:"Perangkat Router bekerja utamanya pada layer berapa?",opts:["Layer 3 (Network)","Layer 1 (Physical)","Layer 2 (Data Link)","Layer 4 (Transport)"],ans:0,exp:"Router bekerja di Layer 3 (Network) karena menggunakan IP Address untuk merouting paket antar jaringan yang berbeda."},
+{q:"Layer yang mengatur sesi komunikasi (session) antara dua komputer adalah?",opts:["Session Layer (Layer 5)","Transport Layer (Layer 4)","Presentation Layer (Layer 6)","Application Layer (Layer 7)"],ans:0,exp:"Session Layer (Layer 5) mengelola pembukaan, pemeliharaan, dan penutupan sesi komunikasi antar aplikasi."},
+{q:"Apa urutan layer OSI dari bawah ke atas yang benar?",opts:["Physical-DataLink-Network-Transport-Session-Presentation-Application","Application-Presentation-Session-Transport-Network-DataLink-Physical","Physical-Network-DataLink-Transport-Session-Application-Presentation","Network-Physical-DataLink-Transport-Session-Presentation-Application"],ans:0,exp:"Urutan OSI Layer dari bawah: 1.Physical, 2.Data Link, 3.Network, 4.Transport, 5.Session, 6.Presentation, 7.Application."}
+];
+const Q_TROUBLE=[
+{scenario:"PC tidak mendapatkan IP Address secara otomatis.",steps:[
+{phase:"CHECK",q:"Apa yang pertama kali harus diperiksa?",opts:["Apakah DHCP Server aktif","Apakah monitor nyala","Apakah mouse berfungsi","Apakah printer terhubung"],ans:0,exp:"Langkah pertama (Check): Pastikan DHCP Server aktif dan berjalan untuk memberikan IP otomatis."},
+{phase:"IDENTIFY",q:"Setelah dicek, DHCP Server ternyata mati. Apa identifikasi masalahnya?",opts:["Client tidak mendapat IP karena DHCP down","Kabel putus","RAM rusak","Virus menyerang"],ans:0,exp:"Identify: Masalah teridentifikasi bahwa DHCP Server tidak berjalan sehingga client tidak mendapat IP."},
+{phase:"FIX",q:"Bagaimana cara memperbaikinya?",opts:["Restart atau aktifkan kembali DHCP Server","Ganti monitor","Install ulang Windows","Ganti keyboard"],ans:0,exp:"Fix: Aktifkan kembali layanan DHCP Server pada router atau server agar bisa memberikan IP otomatis."},
+{phase:"TEST",q:"Bagaimana cara mengetes perbaikannya?",opts:["Gunakan ipconfig/release lalu ipconfig/renew, cek apakah dapat IP","Restart komputer 10 kali","Cabut semua kabel","Hapus semua file"],ans:0,exp:"Test: Gunakan perintah ipconfig /release dan ipconfig /renew untuk meminta IP baru, lalu verifikasi dengan ipconfig."}
+]},
+{scenario:"User tidak bisa browsing internet, tapi bisa ping IP gateway.",steps:[
+{phase:"CHECK",q:"Apa yang perlu diperiksa jika bisa ping gateway tapi tidak bisa browsing?",opts:["Konfigurasi DNS","Kabel power","Kapasitas hardisk","Resolusi layar"],ans:0,exp:"Check: Jika bisa ping gateway (koneksi lokal OK) tapi tidak bisa browsing, kemungkinan masalah ada di DNS."},
+{phase:"IDENTIFY",q:"Hasil nslookup gagal. Apa masalahnya?",opts:["DNS Server bermasalah atau tidak dikonfigurasi","Switch rusak","RAM kurang","CPU overheating"],ans:0,exp:"Identify: Kegagalan nslookup menunjukkan DNS tidak bisa menerjemahkan domain menjadi IP."},
+{phase:"FIX",q:"Solusinya?",opts:["Atur DNS manual ke 8.8.8.8 atau perbaiki DNS Server","Format hardisk","Ganti RAM","Install antivirus"],ans:0,exp:"Fix: Konfigurasi DNS secara manual (misal 8.8.8.8) atau perbaiki DNS Server yang bermasalah."},
+{phase:"TEST",q:"Cara test?",opts:["Buka browser dan akses website, atau gunakan nslookup","Matikan komputer","Cabut kabel LAN","Hapus browser"],ans:0,exp:"Test: Coba buka website atau gunakan nslookup untuk memastikan DNS sudah berfungsi normal."}
+]},
+{scenario:"Dua komputer di jaringan yang sama mengalami IP Conflict.",steps:[
+{phase:"CHECK",q:"Gejala IP conflict biasanya ditandai dengan?",opts:["Notifikasi IP conflict dan koneksi terputus-putus","Monitor berkedip","Suara bising dari PC","Printer mencetak sendiri"],ans:0,exp:"Check: IP Conflict terjadi ketika 2 perangkat menggunakan IP yang sama, menyebabkan koneksi tidak stabil."},
+{phase:"IDENTIFY",q:"Bagaimana mengidentifikasi IP mana yang konflik?",opts:["Gunakan arp -a atau cek DHCP lease table","Bongkar CPU","Cek suhu ruangan","Hitung jumlah kabel"],ans:0,exp:"Identify: Gunakan perintah arp -a atau periksa tabel DHCP lease untuk menemukan IP yang digunakan ganda."},
+{phase:"FIX",q:"Cara mengatasi IP conflict?",opts:["Ubah salah satu IP atau set ke DHCP otomatis","Ganti kedua komputer","Format jaringan","Matikan semua komputer"],ans:0,exp:"Fix: Ubah IP salah satu perangkat secara manual atau atur keduanya menggunakan DHCP agar mendapat IP berbeda."},
+{phase:"TEST",q:"Verifikasi perbaikan?",opts:["Ping kedua komputer dan pastikan tidak ada konflik lagi","Restart router 5 kali","Ganti semua kabel","Install ulang OS"],ans:0,exp:"Test: Ping kedua komputer untuk memastikan masing-masing merespon dengan benar tanpa konflik."}
+]}
+];
+const CABLE_COLORS=[
+{name:'Putih-Hijau',color:'#aaffaa',border:'#00aa00'},
+{name:'Hijau',color:'#00aa00',border:'#006600'},
+{name:'Putih-Orange',color:'#ffddaa',border:'#ff8800'},
+{name:'Biru',color:'#0066ff',border:'#0033aa'},
+{name:'Putih-Biru',color:'#aaccff',border:'#0066ff'},
+{name:'Orange',color:'#ff8800',border:'#cc6600'},
+{name:'Putih-Coklat',color:'#eeddcc',border:'#886644'},
+{name:'Coklat',color:'#886644',border:'#553322'}
+];
+const T568A_ORDER=[0,1,2,3,4,5,6,7]; // WH-G, G, WH-O, B, WH-B, O, WH-Br, Br
+const T568B_ORDER=[2,5,0,3,4,1,6,7]; // WH-O, O, WH-G, B, WH-B, G, WH-Br, Br
+const DEVICES_ALL=['PC','Laptop','Server','Switch','Router','Access Point','Printer','Kabel UTP'];
+const TOPOLOGY_ANSWER=['Router','Switch','Server','PC','Laptop','Printer'];
+
+// Training materials
+const TRAINING_DATA={
+network:{title:'Dasar Jaringan',content:`<h3 style="color:var(--cyan)">Jaringan Komputer</h3><p>Jaringan komputer adalah kumpulan komputer dan perangkat yang saling terhubung untuk berbagi data dan sumber daya.</p><br><p><strong style="color:var(--green)">Jenis Jaringan:</strong></p><ul style="margin-left:20px;"><li><strong>LAN</strong> (Local Area Network) - Jaringan area kecil (ruangan/gedung)</li><li><strong>MAN</strong> (Metropolitan Area Network) - Jaringan area kota</li><li><strong>WAN</strong> (Wide Area Network) - Jaringan area luas (antar negara)</li></ul><br><p><strong style="color:var(--green)">Topologi:</strong> Star, Bus, Ring, Mesh, Tree</p><br><p><strong style="color:var(--green)">Perangkat:</strong> Switch, Router, Access Point, NIC, Kabel UTP, RJ45</p>`},
+ip:{title:'IP Address',content:`<h3 style="color:var(--cyan)">IP Address (IPv4)</h3><p>IP Address adalah alamat logis 32-bit yang terdiri dari 4 oktet (contoh: 192.168.1.1).</p><br><p><strong style="color:var(--green)">Kelas IP:</strong></p><ul style="margin-left:20px;"><li>Kelas A: 1-126 (Mask: 255.0.0.0)</li><li>Kelas B: 128-191 (Mask: 255.255.0.0)</li><li>Kelas C: 192-223 (Mask: 255.255.255.0)</li></ul><br><p><strong style="color:var(--green)">Private IP:</strong> 10.x.x.x, 172.16-31.x.x, 192.168.x.x</p><p><strong style="color:var(--green)">Public IP:</strong> IP yang bisa diakses dari internet</p><br><p><strong>Subnet Mask:</strong> Menentukan bagian Network dan Host</p><p><strong>Gateway:</strong> Pintu keluar jaringan lokal</p><p><strong>DNS:</strong> Penerjemah domain ke IP</p><p><strong>DHCP:</strong> Pemberi IP otomatis</p>`},
+cable:{title:'Kabel & Crimping',content:`<h3 style="color:var(--cyan)">Kabel UTP & RJ45</h3><p>Kabel UTP (Unshielded Twisted Pair) memiliki 4 pasang kabel berwarna yang di-crimping ke konektor RJ45.</p><br><p><strong style="color:var(--green)">Standar T568A:</strong></p><p>1.Putih-Hijau 2.Hijau 3.Putih-Orange 4.Biru 5.Putih-Biru 6.Orange 7.Putih-Coklat 8.Coklat</p><br><p><strong style="color:var(--green)">Standar T568B:</strong></p><p>1.Putih-Orange 2.Orange 3.Putih-Hijau 4.Biru 5.Putih-Biru 6.Hijau 7.Putih-Coklat 8.Coklat</p><br><p><strong>Straight:</strong> Kedua ujung sama (T568B-T568B) → Hubungkan perangkat berbeda</p><p><strong>Cross:</strong> Ujung beda (T568A-T568B) → Hubungkan perangkat sejenis</p>`},
+osi:{title:'OSI Layer',content:`<h3 style="color:var(--cyan)">7 Layer OSI</h3><ol style="margin-left:20px;line-height:2.5;"><li><strong style="color:var(--red)">Physical</strong> - Sinyal, kabel, hub</li><li><strong style="color:var(--yellow)">Data Link</strong> - MAC Address, switch, frame</li><li><strong style="color:var(--green)">Network</strong> - IP Address, router, paket</li><li><strong style="color:var(--cyan)">Transport</strong> - TCP/UDP, port, segmen</li><li><strong style="color:var(--purple)">Session</strong> - Sesi komunikasi</li><li><strong style="color:var(--pink)">Presentation</strong> - Enkripsi, format data</li><li><strong style="color:#fff">Application</strong> - HTTP, FTP, DNS</li></ol><br><p><strong style="color:var(--cyan)">TCP/IP Model:</strong> 4 layer (Network Access, Internet, Transport, Application)</p>`},
+trouble:{title:'Troubleshooting',content:`<h3 style="color:var(--cyan)">Langkah Troubleshooting</h3><p>Gunakan metode <strong style="color:var(--yellow)">CIFT</strong>:</p><br><ol style="margin-left:20px;line-height:2.5;"><li><strong style="color:var(--cyan)">CHECK</strong> - Periksa kondisi fisik dan konfigurasi</li><li><strong style="color:var(--yellow)">IDENTIFY</strong> - Identifikasi akar masalah</li><li><strong style="color:var(--green)">FIX</strong> - Terapkan solusi perbaikan</li><li><strong style="color:var(--purple)">TEST</strong> - Uji coba untuk memastikan masalah teratasi</li></ol><br><p><strong>Perintah penting:</strong> ping, ipconfig, tracert, nslookup, arp, netstat</p><br><p><strong style="color:var(--red)">Keselamatan Kerja:</strong> Selalu matikan arus listrik sebelum bekerja dengan kabel. Gunakan alat pelindung diri.</p>`}
+};
+
+// ==================== UTILITY ====================
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function $(id){return document.getElementById(id);}
+function clearTimer(){if(gameTimer){clearInterval(gameTimer);gameTimer=null;}}
+
+// ==================== MODE 1: NETWORK REPAIR ====================
+let repairQs=[],repairIdx=0,repairTotal=5;
+function startNetworkRepair(){
+repairQs=shuffle(Q_REPAIR).slice(0,repairTotal);repairIdx=0;
+renderRepairStep();
+}
+function renderRepairStep(){
+clearTimer();
+if(repairIdx>=repairTotal){finishMode('Network Repair');return;}
+const q=repairQs[repairIdx];
+renderSteps(repairIdx,repairTotal);
+const area=$('gameArea');
+area.innerHTML=`<div class="question-box"><h3>⚡ MISI ${repairIdx+1}/${repairTotal}: ${q.q}</h3>
+<div class="options">${shuffle(q.opts.map((o,i)=>({o,origIdx:i}))).map(x=>
+`<button class="opt-btn" onclick="answerRepair(${x.origIdx},this)">${x.o}</button>`).join('')}</div></div>`;
+$('feedbackArea').innerHTML='';$('gameButtons').innerHTML='';
+}
+function answerRepair(idx,btn){
+const q=repairQs[repairIdx];
+document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+if(idx===q.ans){
+btn.classList.add('correct');sfxCorrect();addCombo();
+const gained=addXP(100);
+showFeedback(true,`✅ BENAR! +${gained} XP. ${q.exp}`);
+}else{
+btn.classList.add('wrong');
+document.querySelectorAll('.opt-btn')[Array.from(document.querySelectorAll('.opt-btn')).findIndex(b=>b.textContent===q.opts[q.ans])].classList.add('correct');
+sfxWrong();resetCombo();state.wrongAnswers++;
+showFeedback(false,`❌ SALAH! Jawaban: ${q.opts[q.ans]}. ${q.exp}`);
+}
+state.correctAnswers+=(idx===q.ans?1:0);state.totalAnswered++;saveState();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="repairIdx++;renderRepairStep()">NEXT ▶</button>`;
+}
+
+// ==================== MODE 2: IP CHALLENGE ====================
+let ipQs=[],ipIdx=0,ipTotal=5;
+function startIPChallenge(){
+ipQs=shuffle(Q_IP).slice(0,ipTotal);ipIdx=0;renderIPStep();
+}
+function renderIPStep(){
+clearTimer();
+if(ipIdx>=ipTotal){finishMode('IP Challenge');return;}
+const q=ipQs[ipIdx];renderSteps(ipIdx,ipTotal);
+const area=$('gameArea');
+area.innerHTML=`<div class="question-box">
+<div style="background:var(--dark);padding:10px;border-radius:4px;margin-bottom:15px;font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--green);">
+IP: ${q.ip} | MASK: ${q.mask}</div>
+<h3>🌐 ${q.q}</h3>
+<div class="options">${shuffle(q.opts.map((o,i)=>({o,origIdx:i}))).map(x=>
+`<button class="opt-btn" onclick="answerIP(${x.origIdx},this)">${x.o}</button>`).join('')}</div></div>`;
+$('feedbackArea').innerHTML='';$('gameButtons').innerHTML='';
+}
+function answerIP(idx,btn){
+const q=ipQs[ipIdx];
+document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+if(idx===q.ans){
+btn.classList.add('correct');sfxCorrect();addCombo();
+const gained=addXP(120);showFeedback(true,`✅ BENAR! +${gained} XP. ${q.exp}`);
+}else{
+btn.classList.add('wrong');
+document.querySelectorAll('.opt-btn')[Array.from(document.querySelectorAll('.opt-btn')).findIndex(b=>b.textContent===q.opts[q.ans])].classList.add('correct');
+sfxWrong();resetCombo();state.wrongAnswers++;
+showFeedback(false,`❌ SALAH! Jawaban: ${q.opts[q.ans]}. ${q.exp}`);
+}
+state.correctAnswers+=(idx===q.ans?1:0);state.totalAnswered++;saveState();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="ipIdx++;renderIPStep()">NEXT ▶</button>`;
+}
+
+// ==================== MODE 3: BUILD NETWORK ====================
+let buildPlaced=[];
+function startBuildNetwork(){
+buildPlaced=[];
+const area=$('gameArea');
+area.innerHTML=`<div class="build-area">
+<p style="color:#8892b0;font-size:0.85rem;margin-bottom:15px;text-align:center;">Susun perangkat untuk membangun jaringan LAN yang benar. Klik perangkat untuk menambahkannya, klik ✕ untuk menghapus.</p>
+<div class="device-palette" id="devPalette">
+${DEVICES_ALL.map(d=>`<div class="device-item" id="dev_${d.replace(/\s/g,'_')}" onclick="addDevice('${d}')">${d==='Kabel UTP'?'🔗':'🖥️'} ${d}</div>`).join('')}
+</div>
+<div class="drop-zone" id="dropZone"></div>
+</div>`;
+$('feedbackArea').innerHTML='';
+$('gameButtons').innerHTML=`<button class="btn green" onclick="checkBuild()">✓ CEK JARINGAN</button>
+<button class="btn red small" onclick="buildPlaced=[];startBuildNetwork()">↺ RESET</button>`;
+}
+function addDevice(name){
+if(buildPlaced.includes(name))return;
+buildPlaced.push(name);sfxClick();
+const el=document.getElementById('dev_'+name.replace(/\s/g,'_'));if(el)el.classList.add('placed');
+renderDropZone();
+}
+function removeDevice(name){
+buildPlaced=buildPlaced.filter(d=>d!==name);sfxClick();
+const el=document.getElementById('dev_'+name.replace(/\s/g,'_'));if(el)el.classList.remove('placed');
+renderDropZone();
+}
+function renderDropZone(){
+const dz=$('dropZone');
+dz.innerHTML=buildPlaced.map(d=>`<div class="dropped-device">${d}<span class="remove" onclick="removeDevice('${d}')">✕</span></div>`).join('');
+}
+function checkBuild(){
+const required=['Router','Switch','PC','Kabel UTP'];
+const hasAll=required.every(r=>buildPlaced.includes(r));
+const hasCompute=buildPlaced.some(d=>['PC','Laptop'].includes(d));
+if(hasAll&&hasCompute){
+sfxWin();addCombo();const gained=addXP(500);
+$('feedbackArea').innerHTML=`<div class="feedback correct show" style="text-align:center;font-size:1.2rem;">
+🌐 NETWORK ONLINE! +${gained} XP<br><small>Topologi jaringan berhasil dibangun!</small></div>`;
+completeMode();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU UTAMA</button>`;
+}else{
+sfxWrong();resetCombo();
+$('feedbackArea').innerHTML=`<div class="feedback wrong show" style="text-align:center;">
+❌ CONNECTION ERROR — Check your topology!<br><small>Pastikan ada minimal: Router, Switch, PC/Laptop, dan Kabel UTP</small></div>`;
+}
+}
+
+// ==================== MODE 4: CABLE MASTER ====================
+let cableStandard=T568B,cableOrder=[],cableTimeLeft=60,cableActive=false;
+function startCableMaster(){
+cableStandard=Math.random()>0.5?T568A:T568B;cableOrder=[];cableTimeLeft=60;cableActive=true;
+const stdName=cableStandard===T568A?'T568A':'T568B';
+$('gameArea').innerHTML=`<div class="cable-game">
+<div class="mission-header"><h2 style="color:var(--yellow)">STANDAR: ${stdName}</h2>
+<p>Susun urutan warna kabel sesuai standar ${stdName}. Waktu: 60 detik!</p></div>
+<div class="rj45-visual" id="rj45Visual">${Array(8).fill(0).map((_,i)=>`<div class="pin-slot" id="pin${i}"><span style="font-size:0.6rem">${i+1}</span></div>`).join('')}</div>
+<div class="color-palette" id="colorPalette">
+${CABLE_COLORS.map((c,i)=>`<div class="color-wire" id="cw${i}" style="background:${c.color};color:${c.border};border-color:${c.border}" onclick="pickWire(${i})">${c.name}</div>`).join('')}
+</div></div>`;
+$('feedbackArea').innerHTML='';
+$('gameButtons').innerHTML=`<button class="btn red small" onclick="cableOrder=[];startCableMaster()">↺ RESET</button>`;
+$('timerBarContainer').classList.remove('hidden');
+$('timerFill').style.width='100%';
+clearTimer();
+gameTimer=setInterval(()=>{
+cableTimeLeft-=0.1;sfxTick();
+$('timerFill').style.width=(cableTimeLeft/60*100)+'%';
+if(cableTimeLeft<=0){clearTimer();cableActive=false;
+sfxWrong();resetCombo();
+$('feedbackArea').innerHTML=`<div class="feedback wrong show">⏰ WAKTU HABIS! Standar yang benar (${stdName}): ${cableStandard.map(i=>CABLE_COLORS[i].name).join(' → ')}</div>`;
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU</button>`;
+}
+},100);
+renderCablePins();
+}
+function pickWire(colorIdx){
+if(!cableActive||cableOrder.length>=8)return;
+if(cableOrder.includes(colorIdx))return;
+cableOrder.push(colorIdx);sfxClick();
+document.getElementById('cw'+colorIdx).classList.add('used');
+renderCablePins();
+if(cableOrder.length===8)checkCable();
+}
+function renderCablePins(){
+for(let i=0;i<8;i++){
+const pin=document.getElementById('pin'+i);
+if(i<cableOrder.length){
+const c=CABLE_COLORS[cableOrder[i]];
+pin.innerHTML=`<div class="wire" style="background:${c.color};border:1px solid ${c.border}"></div><span style="font-size:0.45rem;color:${c.border}">${c.name}</span>`;
+pin.classList.add('filled');
+}else{
+pin.innerHTML=`<span style="font-size:0.6rem;color:#334">${i+1}</span>`;
+pin.classList.remove('filled');
+}
+}
+}
+function checkCable(){
+clearTimer();cableActive=false;
+const correct=cableOrder.every((c,i)=>c===cableStandard[i]);
+if(correct){
+sfxWin();addCombo();const timeBonus=Math.floor(cableTimeLeft*5);const gained=addXP(300+timeBonus);
+$('feedbackArea').innerHTML=`<div class="feedback correct show" style="text-align:center;font-size:1.1rem;">
+🔧 CRIMPING BERHASIL! +${gained} XP (Termasuk bonus waktu +${timeBonus})</div>`;
+completeMode();
+}else{
+sfxWrong();resetCombo();
+const stdName=cableStandard===T568A?'T568A':'T568B';
+$('feedbackArea').innerHTML=`<div class="feedback wrong show" style="text-align:center;">
+❌ URUTAN SALAH!<br>Urutan ${stdName} yang benar:<br>${cableStandard.map(i=>CABLE_COLORS[i].name).join(' → ')}</div>`;
+}
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU</button>`;
+}
+
+// ==================== MODE 5: OSI BATTLE ====================
+let osiQs=[],osiIdx=0,netbotHP=100,netbotMaxHP=100,osiTotal=5;
+function startOSIBattle(){
+osiQs=shuffle(Q_OSI).slice(0,osiTotal);osiIdx=0;netbotHP=netbotMaxHP;
+renderOSIStep();
+}
+function renderOSIStep(){
+clearTimer();
+if(netbotHP<=0||osiIdx>=osiTotal){
+if(netbotHP<=0){
+sfxWin();addCombo();const gained=addXP(400);
+$('gameArea').innerHTML=`<div class="netbot-container"><div class="netbot-avatar" style="border-color:var(--green);box-shadow:0 0 40px rgba(0,255,136,0.5)">💀</div>
+<h2 style="color:var(--green);font-family:'Orbitron',monospace;">NET-BOT DEFEATED!</h2>
+<p style="color:var(--cyan)">+${gained} XP</p></div>`;
+completeMode();
+}else{
+sfxWrong();resetCombo();
+$('gameArea').innerHTML=`<div class="netbot-container"><h2 style="color:var(--red);font-family:'Orbitron',monospace;">NET-BOT WINS...</h2>
+<p style="color:#8892b0">Pelajari lagi OSI Layer dan coba lagi!</p></div>`;
+}
+$('feedbackArea').innerHTML='';
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU</button>`;
+return;
+}
+const q=osiQs[osiIdx];renderSteps(osiIdx,osiTotal);
+const area=$('gameArea');
+area.innerHTML=`<div class="netbot-container">
+<div class="netbot-avatar" id="netbotAvatar">🤖</div>
+<p style="font-family:'Orbitron',monospace;color:var(--purple);font-size:0.8rem;margin-bottom:5px;">NET-BOT</p>
+<div class="hp-bar"><div class="hp-fill" id="netbotHPBar" style="width:${(netbotHP/netbotMaxHP)*100}%"></div>
+<span class="hp-text">${netbotHP}/${netbotMaxHP} HP</span></div>
+</div>
+<div class="question-box"><h3>⚔️ NET-BOT: "${q.q}"</h3>
+<div class="options">${shuffle(q.opts.map((o,i)=>({o,origIdx:i}))).map(x=>
+`<button class="opt-btn" onclick="answerOSI(${x.origIdx},this)">${x.o}</button>`).join('')}</div></div>`;
+$('feedbackArea').innerHTML='';$('gameButtons').innerHTML='';
+}
+function answerOSI(idx,btn){
+const q=osiQs[osiIdx];
+document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+if(idx===q.ans){
+btn.classList.add('correct');sfxCorrect();sfxDamage();addCombo();
+const dmg=20;netbotHP=Math.max(0,netbotHP-dmg);
+const avatar=$('netbotAvatar');avatar.classList.add('damaged');setTimeout(()=>avatar.classList.remove('damaged'),500);
+$('netbotHPBar').style.width=(netbotHP/netbotMaxHP)*100+'%';
+document.querySelector('.hp-text').textContent=netbotHP+'/'+netbotMaxHP+' HP';
+const gained=addXP(80);
+showFeedback(true,`⚔️ HIT! -${dmg} HP! +${gained} XP. ${q.exp}`);
+}else{
+btn.classList.add('wrong');
+document.querySelectorAll('.opt-btn')[Array.from(document.querySelectorAll('.opt-btn')).findIndex(b=>b.textContent===q.opts[q.ans])].classList.add('correct');
+sfxWrong();resetCombo();state.wrongAnswers++;
+showFeedback(false,`🛡️ NET-BOT BLOCKED! Jawaban: ${q.opts[q.ans]}. ${q.exp}`);
+}
+state.correctAnswers+=(idx===q.ans?1:0);state.totalAnswered++;saveState();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="osiIdx++;renderOSIStep()">NEXT ATTACK ▶</button>`;
+}
+
+// ==================== MODE 6: TROUBLESHOOTING ====================
+let troubleScenario=null,troubleStep=0;
+function startTroubleshooting(){
+troubleScenario=Q_TROUBLE[Math.floor(Math.random()*Q_TROUBLE.length)];troubleStep=0;
+renderTroubleStep();
+}
+function renderTroubleStep(){
+clearTimer();
+if(troubleStep>=4){
+sfxWin();addCombo();const gained=addXP(350);
+$('gameArea').innerHTML=`<div class="question-box" style="text-align:center;">
+<h2 style="color:var(--green);font-family:'Orbitron',monospace;">🔧 TROUBLESHOOTING COMPLETE!</h2>
+<p style="color:var(--cyan);margin-top:10px;">Masalah berhasil diatasi! +${gained} XP</p></div>`;
+completeMode();
+$('feedbackArea').innerHTML='';
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU</button>`;
+return;
+}
+const step=troubleScenario.steps[troubleStep];renderSteps(troubleStep,4);
+const phaseColors={CHECK:'var(--cyan)',IDENTIFY:'var(--yellow)',FIX:'var(--green)',TEST:'var(--purple)'};
+const area=$('gameArea');
+area.innerHTML=`<div class="question-box">
+<div style="display:inline-block;padding:4px 12px;border:1px solid ${phaseColors[step.phase]};color:${phaseColors[step.phase]};
+font-family:'Orbitron',monospace;font-size:0.7rem;border-radius:3px;margin-bottom:10px;">STEP ${troubleStep+1}: ${step.phase}</div>
+<div style="background:var(--dark);padding:10px;border-radius:4px;margin-bottom:15px;border-left:3px solid var(--red);">
+<strong style="color:var(--red)">SCENARIO:</strong> <span style="color:#aab">${troubleScenario.scenario}</span></div>
+<h3>🚨 ${step.q}</h3>
+<div class="options">${shuffle(step.opts.map((o,i)=>({o,origIdx:i}))).map(x=>
+`<button class="opt-btn" onclick="answerTrouble(${x.origIdx},this)">${x.o}</button>`).join('')}</div></div>`;
+$('feedbackArea').innerHTML='';$('gameButtons').innerHTML='';
+}
+function answerTrouble(idx,btn){
+const step=troubleScenario.steps[troubleStep];
+document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+if(idx===step.ans){
+btn.classList.add('correct');sfxCorrect();addCombo();
+const gained=addXP(90);
+showFeedback(true,`✅ ${step.phase} BERHASIL! +${gained} XP. ${step.exp}`);
+}else{
+btn.classList.add('wrong');
+document.querySelectorAll('.opt-btn')[Array.from(document.querySelectorAll('.opt-btn')).findIndex(b=>b.textContent===step.opts[step.ans])].classList.add('correct');
+sfxWrong();resetCombo();state.wrongAnswers++;
+showFeedback(false,`❌ Kurang tepat. Jawaban: ${step.opts[step.ans]}. ${step.exp}`);
+}
+state.correctAnswers+=(idx===step.ans?1:0);state.totalAnswered++;saveState();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="troubleStep++;renderTroubleStep()">NEXT STEP ▶</button>`;
+}
+
+// ==================== COMMON FUNCTIONS ====================
+function renderSteps(current,total){
+const si=$('stepIndicator');si.innerHTML='';
+for(let i=0;i<total;i++){
+const dot=document.createElement('div');dot.className='step-dot'+(i<current?' done':'')+(i===current?' active':'');
+si.appendChild(dot);
+}
+}
+function showFeedback(isCorrect,msg){
+$('feedbackArea').innerHTML=`<div class="feedback ${isCorrect?'correct':'wrong'} show">${msg}</div>`;
+}
+function finishMode(modeName){
+sfxWin();
+$('gameArea').innerHTML=`<div class="question-box" style="text-align:center;">
+<h2 style="color:var(--green);font-family:'Orbitron',monospace;">✅ MISI SELESAI!</h2>
+<p style="color:var(--cyan);margin-top:10px;">${modeName} berhasil diselesaikan!</p>
+<p style="color:#556;font-size:0.85rem;margin-top:5px;">Total XP: ${state.xp} | Level: ${state.level}</p></div>`;
+$('feedbackArea').innerHTML='';
+completeMode();
+$('gameButtons').innerHTML=`<button class="btn green" onclick="goHome()">MENU UTAMA</button>`;
+}
+
+// ==================== ACHIEVEMENTS SCREEN ====================
+function renderAchievements(){
+const grid=$('badgeGrid');
+grid.innerHTML=BADGES_DEF.map(b=>{
+const earned=state.badges.includes(b.id);
+return `<div class="badge ${earned?'earned':'locked'}">
+<div class="badge-icon">${b.icon}</div>
+<div class="badge-name">${b.name}</div>
+<p style="font-size:0.65rem;color:#556;margin-top:4px;">${b.desc}</p>
+${earned?'<p style="font-size:0.6rem;color:var(--green);margin-top:4px;">✓ EARNED</p>':''}
+</div>`;
+}).join('');
+}
+
+// ==================== LEADERBOARD ====================
+function renderLeaderboard(){
+let lb=JSON.parse(localStorage.getItem('tkj_leaderboard')||'[]');
+if(state.name&&state.xp>0){
+const existing=lb.find(e=>e.name===state.name);
+if(existing){existing.xp=state.xp;existing.level=state.level;existing.badges=state.badges.length;}
+else lb.push({name:state.name,xp:state.xp,level:state.level,badges:state.badges.length});
+localStorage.setItem('tkj_leaderboard',JSON.stringify(lb));
+}
+// Add dummy data if empty
+if(lb.length===0){
+lb=[{name:'Andi_Cyber',xp:12500,level:6,badges:6},{name:'Budi_Net',xp:10200,level:5,badges:5},
+{name:'Citra_Hack',xp:9850,level:5,badges:4},{name:'Deni_Root',xp:7600,level:4,badges:3}];
+}
+lb.sort((a,b)=>b.xp-a.xp);
+const body=$('lbBody');
+body.innerHTML=lb.slice(0,10).map((e,i)=>{
+const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+return `<tr><td class="${rc}">${medal}</td><td>${e.name}${e.name===state.name?' ⭐':''}</td>
+<td>Lv.${e.level}</td><td style="color:var(--cyan)">${e.xp.toLocaleString()} XP</td>
+<td>${'🏅'.repeat(Math.min(e.badges||0,5))}</td></tr>`;
+}).join('');
+}
+function showLBTab(tab){
+document.querySelectorAll('#screenLeaderboard .tab').forEach(t=>t.classList.remove('active'));
+event.target.classList.add('active');renderLeaderboard();
+}
+
+// ==================== TRAINING ====================
+function renderTraining(){
+const tabs=$('trainingTabs');
+const keys=Object.keys(TRAINING_DATA);
+tabs.innerHTML=keys.map((k,i)=>`<div class="tab ${i===0?'active':''}" onclick="showTrainingTab('${k}',this)">${TRAINING_DATA[k].title}</div>`).join('');
+showTrainingTab(keys[0]);
+}
+function showTrainingTab(key,el){
+if(el){document.querySelectorAll('#trainingTabs .tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+$('trainingContent').innerHTML=TRAINING_DATA[key].content;
+}
+
+// ==================== TEACHER MODE ====================
+function createRoom(){
+const code='TKJ-'+Math.random().toString(36).substr(2,4).toUpperCase();
+$('roomCodeGen').value=code;
+sfxCorrect();
+alert(`Room berhasil dibuat!\n\nKode Room: ${code}\nMateri: ${$('teacherTopic').options[$('teacherTopic').selectedIndex].text}\nKesulitan: ${$('teacherDiff').options[$('teacherDiff').selectedIndex].text}\nJumlah Soal: ${$('teacherQCount').value}\n\nBerikan kode ini kepada siswa untuk bergabung.`);
+}
+function renderStudentData(){
+const list=$('studentDataList');
+const students=JSON.parse(localStorage.getItem('tkj_leaderboard')||'[]');
+if(students.length===0){list.innerHTML='<p style="color:#556;font-size:0.85rem;">Belum ada data siswa.</p>';return;}
+list.innerHTML=students.map(s=>`<div class="student-row">
+<span>${s.name}</span><span style="color:var(--cyan)">Lv.${s.level} | ${s.xp} XP</span>
+<span>✓${state.correctAnswers} ✗${state.wrongAnswers}</span></div>`).join('');
+}
+function exportData(){
+const data=JSON.stringify({students:JSON.parse(localStorage.getItem('tkj_leaderboard')||'[]'),state:state},null,2);
+const blob=new Blob([data],{type:'application/json'});
+const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='tkj_cyber_data.json';a.click();
+sfxCorrect();
+}
+
+// ==================== INIT ====================
+function init(){
+loadState();updateHUD();
+// Override screen shows to render dynamic content
+const origShow=showScreen;
+const _showScreen=showScreen;
+window.showScreen=function(id){
+_showScreen(id);
+if(id==='screenAchievements')renderAchievements();
+if(id==='screenLeaderboard')renderLeaderboard();
+if(id==='screenTraining')renderTraining();
+if(id==='screenTeacher'){
+renderStudentData();
+if(!$('roomCodeGen').value)$('roomCodeGen').value='TKJ-'+Math.random().toString(36).substr(2,4).toUpperCase().slice(0,4);
+}
+};
+// Initial room code
+$('roomCodeGen').value='TKJ-'+Math.random().toString(36).substr(2,4).toUpperCase().slice(0,4);
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarik Tambang TKJ Kelas 10</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+:root{
+--bg:#0a0e1a;--panel:#111827;--cyan:#00f0ff;--blue:#0066ff;--green:#00ff88;
+--red:#ff3366;--yellow:#ffcc00;--white:#e0e8ff;--dark:#060a14;
+}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--white);overflow-x:hidden;min-height:100vh;}
+h1,h2,h3,.btn-main{font-family:'Orbitron',sans-serif;}
+.page{display:none;width:100%;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:20px;position:relative;}
+.page.active{display:flex;}
+.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,240,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,240,255,.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;z-index:0;}
+.particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:3px;height:3px;background:var(--cyan);border-radius:50%;opacity:.4;animation:floatUp linear infinite;}
+@keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:.6;}90%{opacity:.6;}100%{transform:translateY(-10vh) scale(1);opacity:0;}}
+.panel{background:rgba(17,24,39,.9);border:1px solid rgba(0,240,255,.2);border-radius:16px;padding:30px;backdrop-filter:blur(10px);box-shadow:0 0 30px rgba(0,240,255,.1);max-width:800px;width:100%;position:relative;z-index:1;}
+.panel::before{content:'';position:absolute;top:-1px;left:20%;right:20%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);}
+.title{font-size:clamp(1.5rem,5vw,3rem);text-align:center;color:var(--cyan);text-shadow:0 0 20px rgba(0,240,255,.5);margin-bottom:10px;letter-spacing:2px;}
+.subtitle{text-align:center;color:var(--blue);font-size:1.1rem;margin-bottom:30px;font-weight:600;}
+.btn-main{padding:14px 36px;font-size:1rem;border:2px solid var(--cyan);background:transparent;color:var(--cyan);border-radius:8px;cursor:pointer;transition:all .3s;text-transform:uppercase;letter-spacing:2px;display:inline-flex;align-items:center;gap:8px;margin:8px;}
+.btn-main:hover{background:var(--cyan);color:var(--bg);box-shadow:0 0 25px rgba(0,240,255,.4);transform:translateY(-2px);}
+.btn-main.danger{border-color:var(--red);color:var(--red);}
+.btn-main.danger:hover{background:var(--red);color:#fff;box-shadow:0 0 25px rgba(255,51,102,.4);}
+.btn-main.success{border-color:var(--green);color:var(--green);}
+.btn-main.success:hover{background:var(--green);color:var(--bg);box-shadow:0 0 25px rgba(0,255,136,.4);}
+.btn-group{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:20px;}
+.icons-row{display:flex;justify-content:center;gap:20px;margin:20px 0;font-size:2rem;}
+.icons-row span{filter:drop-shadow(0 0 8px rgba(0,240,255,.5));}
+input[type="text"]{background:rgba(0,0,0,.4);border:2px solid rgba(0,240,255,.3);color:var(--cyan);padding:12px 20px;border-radius:8px;font-size:1.1rem;font-family:'Rajdhani',sans-serif;width:100%;max-width:400px;text-align:center;outline:none;transition:border-color .3s;}
+input[type="text"]:focus{border-color:var(--cyan);box-shadow:0 0 15px rgba(0,240,255,.2);}
+.difficulty-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:15px 0;}
+.diff-btn{padding:10px 24px;border:2px solid;border-radius:8px;cursor:pointer;background:transparent;font-family:'Orbitron',sans-serif;font-size:.85rem;transition:all .3s;}
+.diff-btn.easy{border-color:var(--green);color:var(--green);}
+.diff-btn.easy:hover,.diff-btn.easy.selected{background:var(--green);color:var(--bg);}
+.diff-btn.medium{border-color:var(--yellow);color:var(--yellow);}
+.diff-btn.medium:hover,.diff-btn.medium.selected{background:var(--yellow);color:var(--bg);}
+.diff-btn.hard{border-color:var(--red);color:var(--red);}
+.diff-btn.hard:hover,.diff-btn.hard.selected{background:var(--red);color:#fff;}
+/* ARENA */
+.arena-container{width:100%;max-width:900px;position:relative;z-index:1;}
+.score-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:rgba(0,0,0,.5);border-radius:12px;margin-bottom:15px;border:1px solid rgba(0,240,255,.15);}
+.team-score{text-align:center;}
+.team-score .name{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);}
+.team-score .score{font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--yellow);}
+.team-score.enemy .name{color:var(--red);}
+.combo-display{font-family:'Orbitron',sans-serif;color:var(--green);font-size:.9rem;text-align:center;}
+.tug-area{position:relative;height:120px;background:rgba(0,0,0,.3);border-radius:12px;margin:15px 0;overflow:hidden;border:1px solid rgba(0,240,255,.1);}
+.tug-track{position:absolute;top:50%;left:5%;right:5%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;transform:translateY(-50%);}
+.tug-marker{position:absolute;top:50%;width:30px;height:30px;background:var(--yellow);border-radius:50%;transform:translate(-50%,-50%);transition:left .6s cubic-bezier(.68,-.55,.265,1.55);box-shadow:0 0 20px rgba(255,204,0,.6);z-index:3;}
+.tug-rope{position:absolute;top:50%;left:5%;right:5%;height:4px;background:linear-gradient(90deg,var(--cyan),var(--yellow),var(--red));transform:translateY(-50%);border-radius:2px;z-index:2;}
+.team-icon{position:absolute;top:50%;transform:translateY(-50%);font-size:2.5rem;z-index:4;}
+.team-icon.left{left:2%;}
+.team-icon.right{right:2%;}
+.zone-left,.zone-right{position:absolute;top:0;height:100%;width:15%;opacity:.15;}
+.zone-left{left:0;background:linear-gradient(90deg,var(--cyan),transparent);border-radius:12px 0 0 12px;}
+.zone-right{right:0;background:linear-gradient(-90deg,var(--red),transparent);border-radius:0 12px 12px 0;}
+.progress-container{width:100%;height:8px;background:rgba(255,255,255,.1);border-radius:4px;margin:10px 0;overflow:hidden;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:4px;transition:width .5s;}
+.timer-bar{width:100%;height:6px;background:rgba(255,255,255,.1);border-radius:3px;margin:10px 0;overflow:hidden;}
+.timer-fill{height:100%;background:var(--green);border-radius:3px;transition:width .1s linear, background .3s;}
+.timer-fill.warning{background:var(--yellow);}
+.timer-fill.danger{background:var(--red);}
+.question-panel{background:rgba(0,0,0,.4);border:1px solid rgba(0,240,255,.2);border-radius:12px;padding:20px;margin:10px 0;}
+.q-number{font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--blue);margin-bottom:5px;}
+.q-text{font-size:1.15rem;font-weight:600;line-height:1.5;margin-bottom:15px;min-height:50px;}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:600px){.options{grid-template-columns:1fr;}}
+.opt-btn{padding:14px 18px;background:rgba(0,102,255,.1);border:2px solid rgba(0,102,255,.3);border-radius:10px;color:var(--white);font-size:1rem;font-family:'Rajdhani',sans-serif;font-weight:600;cursor:pointer;transition:all .25s;text-align:left;display:flex;align-items:center;gap:10px;}
+.opt-btn:hover:not(:disabled){background:rgba(0,240,255,.15);border-color:var(--cyan);transform:scale(1.02);}
+.opt-btn:disabled{cursor:not-allowed;opacity:.7;}
+.opt-btn.correct{background:rgba(0,255,136,.2)!important;border-color:var(--green)!important;color:var(--green)!important;animation:pulseGreen .5s;}
+.opt-btn.wrong{background:rgba(255,51,102,.2)!important;border-color:var(--red)!important;color:var(--red)!important;animation:shake .5s;}
+.opt-label{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(0,240,255,.15);color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.75rem;flex-shrink:0;}
+@keyframes pulseGreen{0%,100%{box-shadow:0 0 0 rgba(0,255,136,0);}50%{box-shadow:0 0 30px rgba(0,255,136,.4);}}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.feedback-overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:100;pointer-events:none;opacity:0;transition:opacity .3s;}
+.feedback-overlay.show{opacity:1;}
+.feedback-text{font-family:'Orbitron',sans-serif;font-size:clamp(2rem,8vw,4rem);font-weight:900;text-shadow:0 0 40px currentColor;animation:popIn .5s cubic-bezier(.68,-.55,.265,1.55);}
+.feedback-text.correct-fb{color:var(--green);}
+.feedback-text.wrong-fb{color:var(--red);}
+@keyframes popIn{0%{transform:scale(0) rotate(-10deg);opacity:0;}100%{transform:scale(1) rotate(0);opacity:1;}}
+.lives{display:flex;gap:5px;font-size:1.2rem;}
+.life{transition:all .3s;}
+.life.lost{opacity:.2;transform:scale(.8);}
+.info-list{text-align:left;line-height:2;font-size:1rem;}
+.info-list li{margin-bottom:5px;}
+.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:20px 0;}
+.stat-card{background:rgba(0,0,0,.3);border:1px solid rgba(0,240,255,.15);border-radius:10px;padding:15px;text-align:center;}
+.stat-card .val{font-family:'Orbitron',sans-serif;font-size:1.8rem;color:var(--cyan);}
+.stat-card .label{font-size:.85rem;color:rgba(255,255,255,.6);margin-top:5px;}
+.summary-section{margin-top:20px;text-align:left;max-height:300px;overflow-y:auto;padding:10px;background:rgba(0,0,0,.3);border-radius:8px;}
+.summary-item{padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.9rem;}
+.summary-item:last-child{border:none;}
+.summary-item .q{color:var(--cyan);font-weight:600;}
+.summary-item .a{color:var(--green);}
+.summary-item .w{color:var(--red);}
+.lb-table{width:100%;border-collapse:collapse;margin-top:15px;}
+.lb-table th,.lb-table td{padding:10px;text-align:center;border-bottom:1px solid rgba(0,240,255,.1);}
+.lb-table th{color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.75rem;}
+.lb-table tr:hover td{background:rgba(0,240,255,.05);}
+.lb-rank{font-family:'Orbitron',sans-serif;color:var(--yellow);}
+.motivation{font-family:'Orbitron',sans-serif;color:var(--yellow);text-align:center;font-size:.9rem;min-height:24px;margin:5px 0;}
+.flash-correct{animation:flashBg .5s;background:rgba(0,255,136,.1)!important;}
+.flash-wrong{animation:flashBg .5s;background:rgba(255,51,102,.1)!important;}
+@keyframes flashBg{0%{opacity:1;}50%{opacity:.5;}100%{opacity:1;}}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.3);}
+::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:3px;}
+.hidden{display:none!important;}
+.mute-btn{position:fixed;top:15px;right:15px;z-index:999;background:rgba(0,0,0,.5);border:1px solid rgba(0,240,255,.3);color:var(--cyan);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="particles" id="particles"></div>
+<button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+
+<!-- FEEDBACK OVERLAY -->
+<div class="feedback-overlay" id="feedbackOverlay">
+<div class="feedback-text" id="feedbackText"></div>
+</div>
+
+<!-- PAGE: MENU -->
+<div class="page active" id="pageMenu">
+<div class="panel" style="text-align:center;">
+<div class="icons-row">
+<span>🖥️</span><span>🔌</span><span>📡</span><span>🌐</span><span>⚙️</span>
+</div>
+<h1 class="title">TARIK TAMBANG<br>TKJ</h1>
+<p class="subtitle">Game Edukasi Jaringan Komputer — Kelas 10 SMK</p>
+<div class="btn-group" style="flex-direction:column;align-items:center;">
+<button class="btn-main success" onclick="showPage('pageTeam')">▶ MULAI GAME</button>
+<button class="btn-main" onclick="showPage('pageHowTo')">📖 CARA BERMAIN</button>
+<button class="btn-main" onclick="showPage('pageLeaderboard')">🏆 LEADERBOARD</button>
+<button class="btn-main danger" onclick="exitGame()">✖ KELUAR</button>
+</div>
+</div>
+</div>
+
+<!-- PAGE: HOW TO PLAY -->
+<div class="page" id="pageHowTo">
+<div class="panel">
+<h2 class="title" style="font-size:1.5rem;">📖 CARA BERMAIN</h2>
+<ul class="info-list">
+<li>🎮 Kamu akan bermain <b>Tarik Tambang</b> melawan Tim Bot Lawan.</li>
+<li>❓ Setiap ronde muncul pertanyaan pilihan ganda seputar materi TKJ Kelas 10.</li>
+<li>✅ <b>Jawaban Benar:</b> +10 poin & tali tertarik ke arah timmu!</li>
+<li>❌ <b>Jawaban Salah:</b> -5 poin & lawan menarik tali ke arahnya!</li>
+<li>⚡ <b>Bonus Cepat:</b> Jawab dalam 3 detik pertama = +5 poin bonus!</li>
+<li>🔥 <b>Combo:</b> Jawab benar berturut-turut untuk efek combo yang menarik tali lebih jauh!</li>
+<li>⏱️ Waktu menjawab tergantung tingkat kesulitan.</li>
+<li>❤️ Kamu punya <b>3 nyawa</b>. Jawaban salah mengurangi 1 nyawa.</li>
+<li>🏆 Pertandingan berakhir saat penanda tali mencapai area kemenangan salah satu tim, atau nyawa habis.</li>
+<li>📚 Materi meliputi: LAN/MAN/WAN, Topologi, IP Address, OSI Layer, Perangkat Jaringan, dll.</li>
+</ul>
+<div class="btn-group">
+<button class="btn-main" onclick="showPage('pageMenu')">⬅ KEMBALI</button>
+</div>
+</div>
+</div>
+
+<!-- PAGE: TEAM SETUP -->
+<div class="page" id="pageTeam">
+<div class="panel" style="text-align:center;">
+<h2 class="title" style="font-size:1.5rem;">⚙️ PERSIAPAN TIM</h2>
+<div style="margin:20px 0;">
+<label style="color:var(--cyan);font-weight:600;">Nama Tim Kamu:</label><br>
+<input type="text" id="teamNameInput" placeholder="Contoh: Cyber Squad" maxlength="20" style="margin-top:8px;">
+</div>
+<div style="margin:15px 0;">
+<label style="color:var(--cyan);font-weight:600;">Tingkat Kesulitan:</label>
+<div class="difficulty-btns">
+<button class="diff-btn easy selected" onclick="setDifficulty('easy',this)">🟢 EASY</button>
+<button class="diff-btn medium" onclick="setDifficulty('medium',this)">🟡 MEDIUM</button>
+<button class="diff-btn hard" onclick="setDifficulty('hard',this)">🔴 HARD</button>
+</div>
+</div>
+<p style="font-size:.85rem;color:rgba(255,255,255,.5);margin:10px 0;" id="diffDesc">Waktu: 15 detik | Tarikan lawan ringan</p>
+<div class="btn-group">
+<button class="btn-main success" onclick="startGame()">🚀 MULAI PERTANDINGAN!</button>
+<button class="btn-main" onclick="showPage('pageMenu')">⬅ KEMBALI</button>
+</div>
+</div>
+</div>
+
+<!-- PAGE: ARENA -->
+<div class="page" id="pageArena">
+<div class="arena-container">
+<div class="score-bar">
+<div class="team-score">
+<div class="name" id="playerTeamName">TIM KAMU</div>
+<div class="score" id="playerScoreDisplay">0</div>
+<div class="lives" id="livesDisplay">❤️❤️❤️</div>
+</div>
+<div style="text-align:center;">
+<div class="combo-display" id="comboDisplay"></div>
+<div class="motivation" id="motivationText"></div>
+</div>
+<div class="team-score enemy">
+<div class="name" id="enemyTeamName">LAWAN</div>
+<div class="score" id="enemyScoreDisplay">0</div>
+</div>
+</div>
+
+<div class="tug-area" id="tugArea">
+<div class="zone-left"></div>
+<div class="zone-right"></div>
+<div class="tug-rope"></div>
+<div class="tug-track"></div>
+<div class="tug-marker" id="tugMarker" style="left:50%;"></div>
+<div class="team-icon left">🧑‍💻</div>
+<div class="team-icon right">🤖</div>
+</div>
+
+<div class="progress-container">
+<div class="progress-bar" id="progressBar" style="width:0%;"></div>
+</div>
+
+<div class="timer-bar">
+<div class="timer-fill" id="timerFill" style="width:100%;"></div>
+</div>
+
+<div class="question-panel" id="questionPanel">
+<div class="q-number" id="qNumber">RONDE 1 / 30</div>
+<div class="q-text" id="qText">Pertanyaan akan muncul di sini...</div>
+<div class="options" id="optionsContainer"></div>
+</div>
+</div>
+</div>
+
+<!-- PAGE: RESULT -->
+<div class="page" id="pageResult">
+<div class="panel" style="text-align:center;">
+<h2 class="title" style="font-size:1.5rem;" id="resultTitle">HASIL PERTANDINGAN</h2>
+<div id="resultEmoji" style="font-size:4rem;margin:10px 0;">🏆</div>
+<p id="resultMessage" style="font-size:1.2rem;font-weight:600;margin-bottom:15px;"></p>
+<div class="result-stats">
+<div class="stat-card"><div class="val" id="resScore">0</div><div class="label">Skor Akhir</div></div>
+<div class="stat-card"><div class="val" id="resCorrect">0</div><div class="label">Benar</div></div>
+<div class="stat-card"><div class="val" id="resWrong">0</div><div class="label">Salah</div></div>
+<div class="stat-card"><div class="val" id="resCombo">0</div><div class="label">Max Combo</div></div>
+</div>
+<div class="summary-section" id="summarySection">
+<h3 style="color:var(--cyan);font-size:.9rem;margin-bottom:10px;">📚 RINGKASAN MATERI SOAL:</h3>
+<div id="summaryContent"></div>
+</div>
+<div class="btn-group">
+<button class="btn-main success" onclick="showPage('pageTeam')">🔄 MAIN LAGI</button>
+<button class="btn-main" onclick="showPage('pageLeaderboard')">🏆 LEADERBOARD</button>
+<button class="btn-main" onclick="showPage('pageMenu')">🏠 MENU</button>
+</div>
+</div>
+</div>
+
+<!-- PAGE: LEADERBOARD -->
+<div class="page" id="pageLeaderboard">
+<div class="panel">
+<h2 class="title" style="font-size:1.5rem;">🏆 LEADERBOARD</h2>
+<table class="lb-table">
+<thead><tr><th>#</th><th>NAMA TIM</th><th>SKOR</th><th>BENAR</th><th>KESULITAN</th></tr></thead>
+<tbody id="lbBody"></tbody>
+</table>
+<p id="lbEmpty" style="text-align:center;color:rgba(255,255,255,.4);margin-top:20px;display:none;">Belum ada data. Mainkan dulu!</p>
+<div class="btn-group">
+<button class="btn-main" onclick="showPage('pageMenu')">⬅ KEMBALI</button>
+<button class="btn-main danger" onclick="clearLeaderboard()">🗑️ HAPUS DATA</button>
+</div>
+</div>
+</div>
+
+<script>
+// ==================== QUESTIONS DATABASE ====================
+const questions = [
+{q:"Apa yang dimaksud dengan jaringan komputer?",o:["Sekumpulan komputer yang saling terhubung untuk berbagi sumber daya","Satu komputer yang berdiri sendiri","Perangkat lunak untuk menggambar","Kabel listrik di gedung"],a:0,d:"easy"},
+{q:"Kepanjangan dari LAN adalah...",o:["Local Area Network","Large Area Network","Logical Access Node","Local Access Net"],a:0,d:"easy"},
+{q:"Jaringan yang mencakup area satu kota disebut...",o:["MAN (Metropolitan Area Network)","LAN","WAN","PAN"],a:0,d:"easy"},
+{q:"Topologi jaringan di mana semua komputer terhubung ke satu titik pusat disebut topologi...",o:["Star","Bus","Ring","Mesh"],a:0,d:"easy"},
+{q:"Perangkat jaringan yang berfungsi menghubungkan dua jaringan berbeda adalah...",o:["Router","Hub","Repeater","NIC"],a:0,d:"easy"},
+{q:"Konektor yang digunakan pada kabel UTP adalah...",o:["RJ-45","BNC","USB-C","HDMI"],a:0,d:"easy"},
+{q:"IP Address versi 4 (IPv4) terdiri dari berapa bit?",o:["32 bit","64 bit","128 bit","16 bit"],a:0,d:"easy"},
+{q:"Kepanjangan dari MAC Address adalah...",o:["Media Access Control Address","Main Access Computer Address","Memory Allocation Code","Multiple Access Channel"],a:0,d:"easy"},
+{q:"Kepanjangan dari NIC adalah...",o:["Network Interface Card","Network Internet Connection","Node Interface Cable","Net Internal Component"],a:0,d:"easy"},
+{q:"OSI Layer memiliki berapa lapisan?",o:["7 lapisan","5 lapisan","4 lapisan","10 lapisan"],a:0,d:"easy"},
+{q:"Protokol yang digunakan untuk mengirim email adalah...",o:["SMTP","FTP","HTTP","DHCP"],a:0,d:"easy"},
+{q:"Jaringan pribadi internal suatu organisasi yang menggunakan teknologi internet disebut...",o:["Intranet","Internet","Extranet","Ethernet"],a:0,d:"easy"},
+{q:"Kepanjangan dari WAN adalah...",o:["Wide Area Network","Wireless Access Node","Web Application Network","Wired Area Net"],a:0,d:"easy"},
+{q:"Perangkat yang memperkuat sinyal jaringan yang melemah disebut...",o:["Repeater","Router","Switch","Bridge"],a:0,d:"easy"},
+{q:"Topologi jaringan yang membentuk cincin tertutup disebut topologi...",o:["Ring","Star","Bus","Tree"],a:0,d:"easy"},
+{q:"Fungsi utama Switch adalah...",o:["Menghubungkan perangkat dalam satu jaringan dan meneruskan frame berdasarkan MAC Address","Menghubungkan jaringan berbeda","Memberikan alamat IP otomatis","Memperkuat sinyal WiFi"],a:0,d:"medium"},
+{q:"Subnet mask default untuk IP Address kelas C adalah...",o:["255.255.255.0","255.255.0.0","255.0.0.0","255.255.255.255"],a:0,d:"medium"},
+{q:"Layer 1 pada model OSI disebut juga layer...",o:["Physical","Data Link","Network","Transport"],a:0,d:"medium"},
+{q:"Perangkat yang memancarkan sinyal WiFi agar perangkat nirkabel bisa terhubung ke jaringan disebut...",o:["Access Point","Hub","Modem","Repeater"],a:0,d:"medium"},
+{q:"Kabel UTP kategori 5e (Cat5e) mendukung kecepatan transfer data hingga...",o:["1 Gbps","100 Mbps","10 Mbps","10 Gbps"],a:0,d:"medium"},
+{q:"Protokol yang bertugas memberikan IP Address secara otomatis kepada client adalah...",o:["DHCP","DNS","FTP","ARP"],a:0,d:"medium"},
+{q:"Pada topologi Bus, jika kabel utama putus maka...",o:["Seluruh jaringan akan mati","Hanya satu komputer terganggu","Jaringan tetap normal","Kecepatan bertambah"],a:0,d:"medium"},
+{q:"MAC Address memiliki panjang berapa byte?",o:["6 byte (48 bit)","4 byte (32 bit)","8 byte (64 bit)","16 byte (128 bit)"],a:0,d:"medium"},
+{q:"Layer Transport pada model OSI berada di layer ke...",o:["4","3","5","2"],a:0,d:"medium"},
+{q:"Perbedaan utama Hub dan Switch adalah...",o:["Switch meneruskan data hanya ke port tujuan, Hub membroadcast ke semua port","Hub lebih cepat dari Switch","Hub menggunakan MAC Address, Switch tidak","Tidak ada perbedaan"],a:0,d:"medium"},
+{q:"Perintah di Command Prompt untuk mengecek konektivitas jaringan adalah...",o:["ping","ipconfig","tracert","nslookup"],a:0,d:"medium"},
+{q:"IPv6 menggunakan alamat sepanjang berapa bit?",o:["128 bit","32 bit","64 bit","256 bit"],a:0,d:"medium"},
+{q:"Fungsi DNS (Domain Name System) adalah...",o:["Menerjemahkan nama domain menjadi IP Address","Mengamankan jaringan dari virus","Mengatur bandwidth","Menyimpan file website"],a:0,d:"medium"},
+{q:"Serangan jaringan dengan cara membanjiri server dengan permintaan palsu disebut...",o:["DDoS Attack","Phishing","Spyware","Adware"],a:0,d:"medium"},
+{q:"Firewall pada jaringan berfungsi untuk...",o:["Menyaring lalu lintas jaringan berdasarkan aturan keamanan","Mempercepat koneksi internet","Menambah bandwidth","Mengatur IP Address"],a:0,d:"medium"},
+{q:"Pada model OSI, layer yang bertanggung jawab menentukan rute terbaik (routing) adalah layer...",o:["Network (Layer 3)","Transport (Layer 4)","Data Link (Layer 2)","Session (Layer 5)"],a:0,d:"hard"},
+{q:"Standar IEEE untuk jaringan Ethernet adalah...",o:["802.3","802.11","802.15","802.1"],a:0,d:"hard"},
+{q:"Protokol ARP (Address Resolution Protocol) berfungsi untuk...",o:["Memetakan IP Address ke MAC Address","Mengenkripsi data","Mengirim email","Transfer file"],a:0,d:"hard"},
+{q:"Urutan warna kabel UTP standar T568B yang benar adalah...",o:["Putih Orange, Orange, Putih Hijau, Biru, Putih Biru, Hijau, Putih Coklat, Coklat","Putih Hijau, Hijau, Putih Orange, Biru, Putih Biru, Orange, Putih Coklat, Coklat","Orange, Putih Orange, Hijau, Putih Hijau, Biru, Putih Biru, Coklat, Putih Coklat","Biru, Putih Biru, Orange, Putih Orange, Hijau, Putih Hijau, Coklat, Putih Coklat"],a:0,d:"hard"},
+{q:"Teknik membagi jaringan besar menjadi beberapa sub-jaringan kecil disebut...",o:["Subnetting","Routing","Switching","Bridging"],a:0,d:"hard"},
+{q:"VLAN (Virtual Local Area Network) berfungsi untuk...",o:["Membagi jaringan fisik menjadi beberapa jaringan logis","Memperpanjang kabel jaringan","Menambah kecepatan internet","Mengganti router"],a:0,d:"hard"},
+{q:"Port default untuk protokol HTTP adalah...",o:["80","443","21","25"],a:0,d:"hard"},
+{q:"NAT (Network Address Translation) berfungsi untuk...",o:["Menerjemahkan IP privat menjadi IP publik agar bisa akses internet","Mengenkripsi password","Mengatur DNS","Memblokir virus"],a:0,d:"hard"},
+{q:"Protokol yang digunakan untuk mengakses dan mengelola perangkat jaringan secara remote dengan enkripsi adalah...",o:["SSH","Telnet","FTP","HTTP"],a:0,d:"hard"},
+{q:"Pada subnet mask /24, berapa jumlah host yang dapat digunakan?",o:["254","256","255","128"],a:0,d:"hard"},
+];
+
+// ==================== GAME STATE ====================
+let state = {
+teamName:'Cyber Team', difficulty:'easy', score:0, enemyScore:0,
+ropePos:50, lives:3, maxLives:3, combo:0, maxCombo:0,
+correctCount:0, wrongCount:0, totalQuestions:0,
+currentQ:null, questionPool:[], questionIndex:0,
+timerInterval:null, timeLeft:0, maxTime:15, answered:false,
+gameOver:false, history:[], isMuted:false
+};
+
+const diffSettings = {
+easy:{time:15,enemyPull:6,playerPull:8,label:'Easy'},
+medium:{time:12,enemyPull:8,playerPull:7,label:'Medium'},
+hard:{time:8,enemyPull:10,playerPull:6,label:'Hard'}
+};
+
+// ==================== AUDIO ENGINE ====================
+let audioCtx = null;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+function playTone(freq,dur,type='sine',vol=0.15){
+if(state.isMuted||!audioCtx)return;
+try{
+const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+g.gain.setValueAtTime(vol,audioCtx.currentTime);
+g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+dur);
+o.connect(g);g.connect(audioCtx.destination);
+o.start();o.stop(audioCtx.currentTime+dur);
+}catch(e){}
+}
+function sfxCorrect(){playTone(523,.1,'sine',.2);setTimeout(()=>playTone(659,.1,'sine',.2),100);setTimeout(()=>playTone(784,.2,'sine',.2),200);}
+function sfxWrong(){playTone(200,.3,'sawtooth',.15);setTimeout(()=>playTone(150,.3,'sawtooth',.15),150);}
+function sfxTick(){playTone(800,.05,'square',.05);}
+function sfxCombo(){playTone(880,.1,'sine',.15);setTimeout(()=>playTone(1100,.15,'sine',.15),100);}
+function sfxWin(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>playTone(f,.2,'sine',.2),i*150));}
+function sfxLose(){[400,350,300,200].forEach((f,i)=>setTimeout(()=>playTone(f,.3,'sawtooth',.12),i*200));}
+function sfxClick(){playTone(600,.05,'sine',.1);}
+
+let bgmInterval=null;
+function startBGM(){
+if(state.isMuted||!audioCtx)return;
+stopBGM();
+const notes=[261,329,392,523,392,329];let ni=0;
+bgmInterval=setInterval(()=>{
+if(state.isMuted)return;
+playTone(notes[ni%notes.length],.3,'sine',.03);
+ni++;
+},800);
+}
+function stopBGM(){if(bgmInterval){clearInterval(bgmInterval);bgmInterval=null;}}
+function toggleMute(){
+state.isMuted=!state.isMuted;
+document.getElementById('muteBtn').textContent=state.isMuted?'🔇':'🔊';
+if(state.isMuted)stopBGM();
+}
+
+// ==================== PARTICLES ====================
+function createParticles(){
+const c=document.getElementById('particles');
+for(let i=0;i<30;i++){
+const p=document.createElement('div');p.className='particle';
+p.style.left=Math.random()*100+'%';
+p.style.animationDuration=(5+Math.random()*10)+'s';
+p.style.animationDelay=Math.random()*10+'s';
+p.style.width=p.style.height=(1+Math.random()*3)+'px';
+c.appendChild(p);
+}
+}
+createParticles();
+
+// ==================== NAVIGATION ====================
+function showPage(id){
+initAudio();sfxClick();
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+if(id==='pageLeaderboard')renderLeaderboard();
+}
+function exitGame(){
+if(confirm('Yakin ingin keluar?')){window.close();document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#00f0ff;font-family:Orbitron;font-size:2rem;background:#0a0e1a;">Terima Kasih! 👋</div>';}
+}
+function setDifficulty(d,btn){
+state.difficulty=d;
+document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('selected'));
+btn.classList.add('selected');
+const s=diffSettings[d];
+document.getElementById('diffDesc').textContent=`Waktu: ${s.time} detik | Tarikan lawan: ${d==='hard'?'berat':d==='medium'?'sedang':'ringan'}`;
+sfxClick();
+}
+
+// ==================== GAME LOGIC ====================
+function shuffleArray(arr){
+const a=[...arr];
+for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+return a;
+}
+
+function startGame(){
+initAudio();
+const nameInput=document.getElementById('teamNameInput').value.trim();
+state.teamName=nameInput||'Cyber Team';
+state.score=0;state.enemyScore=0;state.ropePos=50;
+state.lives=state.maxLives;state.combo=0;state.maxCombo=0;
+state.correctCount=0;state.wrongCount=0;state.totalQuestions=0;
+state.gameOver=false;state.history=[];state.questionIndex=0;
+
+// Filter by difficulty and shuffle
+let pool=questions.filter(q=>{
+if(state.difficulty==='easy')return q.d==='easy'||q.d==='medium';
+if(state.difficulty==='medium')return true;
+return q.d==='medium'||q.d==='hard';
+});
+state.questionPool=shuffleArray(pool);
+
+document.getElementById('playerTeamName').textContent=state.teamName.toUpperCase();
+updateUI();
+showPage('pageArena');
+startBGM();
+nextQuestion();
+}
+
+function nextQuestion(){
+if(state.gameOver)return;
+if(state.questionIndex>=state.questionPool.length){
+state.questionPool=shuffleArray(questions.filter(q=>{
+if(state.difficulty==='easy')return q.d==='easy'||q.d==='medium';
+if(state.difficulty==='medium')return true;
+return q.d==='medium'||q.d==='hard';
+}));
+state.questionIndex=0;
+}
+state.currentQ=state.questionPool[state.questionIndex++];
+state.answered=false;
+state.totalQuestions++;
+
+// Shuffle options but track correct answer
+const correctAnswer=state.currentQ.o[state.currentQ.a];
+const shuffled=shuffleArray(state.currentQ.o);
+const newCorrectIdx=shuffled.indexOf(correctAnswer);
+
+document.getElementById('qNumber').textContent=`RONDE ${state.totalQuestions}`;
+document.getElementById('qText').textContent=state.currentQ.q;
+
+const container=document.getElementById('optionsContainer');
+container.innerHTML='';
+const labels=['A','B','C','D'];
+shuffled.forEach((opt,i)=>{
+const btn=document.createElement('button');
+btn.className='opt-btn';
+btn.innerHTML=`<span class="opt-label">${labels[i]}</span><span>${opt}</span>`;
+btn.onclick=()=>answerQuestion(i,newCorrectIdx,shuffled);
+container.appendChild(btn);
+});
+
+updateMotivation();
+startTimer();
+}
+
+function startTimer(){
+const settings=diffSettings[state.difficulty];
+state.maxTime=settings.time;
+state.timeLeft=state.maxTime;
+const fill=document.getElementById('timerFill');
+fill.style.width='100%';
+fill.className='timer-fill';
+
+if(state.timerInterval)clearInterval(state.timerInterval);
+const startTime=Date.now();
+state.timerInterval=setInterval(()=>{
+const elapsed=(Date.now()-startTime)/1000;
+state.timeLeft=Math.max(0,state.maxTime-elapsed);
+const pct=(state.timeLeft/state.maxTime)*100;
+fill.style.width=pct+'%';
+
+if(pct<30)fill.className='timer-fill danger';
+else if(pct<60)fill.className='timer-fill warning';
+else fill.className='timer-fill';
+
+if(state.timeLeft<=3&&state.timeLeft>0&&Math.floor(state.timeLeft*10)%10===0)sfxTick();
+
+if(state.timeLeft<=0){
+clearInterval(state.timerInterval);
+if(!state.answered)timeOut();
+}
+},50);
+}
+
+function timeOut(){
+state.answered=true;
+disableOptions();
+processAnswer(false,-1);
+}
+
+function answerQuestion(selected,correctIdx,options){
+if(state.answered)return;
+state.answered=true;
+clearInterval(state.timerInterval);
+initAudio();
+
+const isCorrect=selected===correctIdx;
+const btns=document.querySelectorAll('.opt-btn');
+btns.forEach((b,i)=>{
+b.disabled=true;
+if(i===correctIdx)b.classList.add('correct');
+if(i===selected&&!isCorrect)b.classList.add('wrong');
+});
+
+const timeSpent=state.maxTime-state.timeLeft;
+processAnswer(isCorrect,timeSpent);
+}
+
+function disableOptions(){
+document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+const correctAnswer=state.currentQ.o[state.currentQ.a];
+document.querySelectorAll('.opt-btn').forEach(b=>{
+if(b.textContent.includes(correctAnswer))b.classList.add('correct');
+});
+}
+
+function processAnswer(isCorrect,timeSpent){
+const settings=diffSettings[state.difficulty];
+let pullAmount=0;
+
+if(isCorrect){
+state.score+=10;
+state.combo++;
+if(state.combo>state.maxCombo)state.maxCombo=state.combo;
+state.correctCount++;
+
+// Speed bonus
+if(timeSpent>=0&&timeSpent<=3){state.score+=5;showFeedback('⚡ CEPAT! +5 BONUS','correct-fb');}
+else{showFeedback('✅ BENAR! +10','correct-fb');}
+
+// Combo bonus
+if(state.combo>=3){
+state.score+=state.combo*2;
+pullAmount=settings.playerPull+state.combo;
+sfxCombo();
+showFeedback(`🔥 COMBO x${state.combo}!`,'correct-fb');
+}else{
+pullAmount=settings.playerPull;
+}
+
+sfxCorrect();
+document.getElementById('questionPanel').classList.add('flash-correct');
+setTimeout(()=>document.getElementById('questionPanel').classList.remove('flash-correct'),500);
+
+state.history.push({q:state.currentQ.q,correct:true,yourAnswer:'Benar',correctAnswer:state.currentQ.o[state.currentQ.a]});
+}else{
+state.score=Math.max(0,state.score-5);
+state.enemyScore+=10;
+state.combo=0;
+state.wrongCount++;
+state.lives--;
+pullAmount=-settings.enemyPull;
+
+sfxWrong();
+showFeedback('❌ SALAH! -5','wrong-fb');
+document.getElementById('questionPanel').classList.add('flash-wrong');
+setTimeout(()=>document.getElementById('questionPanel').classList.remove('flash-wrong'),500);
+
+const yourAns=document.querySelectorAll('.opt-btn');
+let yourAnswerText='Timeout';
+yourAns.forEach(b=>{if(b.classList.contains('wrong'))yourAnswerText=b.textContent.trim();});
+state.history.push({q:state.currentQ.q,correct:false,yourAnswer:yourAnswerText,correctAnswer:state.currentQ.o[state.currentQ.a]});
+}
+
+state.ropePos=Math.max(0,Math.min(100,state.ropePos-pullAmount));
+updateUI();
+
+if(state.lives<=0){
+state.gameOver=true;
+setTimeout(()=>endGame(false),1500);
+return;
+}
+if(state.ropePos<=5){
+state.gameOver=true;
+setTimeout(()=>endGame(true),1500);
+return;
+}
+if(state.ropePos>=95){
+state.gameOver=true;
+setTimeout(()=>endGame(false),1500);
+return;
+}
+
+setTimeout(()=>{
+if(!state.gameOver)nextQuestion();
+},2000);
+}
+
+function updateUI(){
+document.getElementById('playerScoreDisplay').textContent=state.score;
+document.getElementById('enemyScoreDisplay').textContent=state.enemyScore;
+document.getElementById('tugMarker').style.left=state.ropePos+'%';
+
+// Lives
+let hearts='';
+for(let i=0;i<state.maxLives;i++){
+hearts+=i<state.lives?'<span class="life">❤️</span>':'<span class="life lost">🖤</span>';
+}
+document.getElementById('livesDisplay').innerHTML=hearts;
+
+// Combo
+const comboEl=document.getElementById('comboDisplay');
+if(state.combo>=2)comboEl.textContent=`🔥 COMBO x${state.combo}`;
+else comboEl.textContent='';
+
+// Progress
+const progPct=Math.min(100,(state.totalQuestions/30)*100);
+document.getElementById('progressBar').style.width=progPct+'%';
+
+// Marker color based on position
+const marker=document.getElementById('tugMarker');
+if(state.ropePos<35)marker.style.background='var(--green)';
+else if(state.ropePos>65)marker.style.background='var(--red)';
+else marker.style.background='var(--yellow)';
+}
+
+function updateMotivation(){
+const el=document.getElementById('motivationText');
+if(state.ropePos<30)el.textContent='🎉 Tim Kamu Hampir Menang!';
+else if(state.ropePos>70)el.textContent='⚠️ Awas! Lawan Mendominasi!';
+else if(state.combo>=3)el.textContent='🔥 Combo Mantap! Terus Pertahankan!';
+else el.textContent='';
+}
+
+function showFeedback(text,cls){
+const overlay=document.getElementById('feedbackOverlay');
+const textEl=document.getElementById('feedbackText');
+textEl.textContent=text;
+textEl.className='feedback-text '+cls;
+overlay.classList.add('show');
+setTimeout(()=>overlay.classList.remove('show'),1200);
+}
+
+function endGame(playerWon){
+stopBGM();
+clearInterval(state.timerInterval);
+if(playerWon)sfxWin();else sfxLose();
+
+document.getElementById('resultTitle').textContent=playerWon?'🎉 KAMU MENANG!':'💀 KAMU KALAH!';
+document.getElementById('resultEmoji').textContent=playerWon?'🏆':'😢';
+document.getElementById('resultMessage').textContent=playerWon?
+`${state.teamName} berhasil memenangkan Tarik Tambang!`:
+'Tim Lawan memenangkan pertandingan. Coba lagi!';
+document.getElementById('resultMessage').style.color=playerWon?'var(--green)':'var(--red)';
+
+document.getElementById('resScore').textContent=state.score;
+document.getElementById('resCorrect').textContent=state.correctCount;
+document.getElementById('resWrong').textContent=state.wrongCount;
+document.getElementById('resCombo').textContent=state.maxCombo;
+
+// Summary
+const sumDiv=document.getElementById('summaryContent');
+sumDiv.innerHTML='';
+state.history.forEach((h,i)=>{
+const div=document.createElement('div');
+div.className='summary-item';
+div.innerHTML=`<div class="q">${i+1}. ${h.q}</div>
+<div class="${h.correct?'a':'w'}">${h.correct?'✅ Benar':'❌ Salah (Jawaban kamu: '+h.yourAnswer+')'} → Jawaban: ${h.correctAnswer}</div>`;
+sumDiv.appendChild(div);
+});
+
+// Save to leaderboard
+saveToLeaderboard(playerWon);
+showPage('pageResult');
+}
+
+// ==================== LEADERBOARD ====================
+function saveToLeaderboard(won){
+let lb=JSON.parse(localStorage.getItem('tkj_leaderboard')||'[]');
+lb.push({
+name:state.teamName,score:state.score,correct:state.correctCount,
+total:state.totalQuestions,diff:diffSettings[state.difficulty].label,
+won:won,date:new Date().toLocaleDateString('id-ID')
+});
+lb.sort((a,b)=>b.score-a.score);
+lb=lb.slice(0,20);
+localStorage.setItem('tkj_leaderboard',JSON.stringify(lb));
+}
+
+function renderLeaderboard(){
+const lb=JSON.parse(localStorage.getItem('tkj_leaderboard')||'[]');
+const body=document.getElementById('lbBody');
+const empty=document.getElementById('lbEmpty');
+body.innerHTML='';
+if(lb.length===0){empty.style.display='block';return;}
+empty.style.display='none';
+lb.forEach((entry,i)=>{
+const tr=document.createElement('tr');
+tr.innerHTML=`<td class="lb-rank">${i+1}</td><td>${entry.name} ${entry.won?'🏆':''}</td><td style="color:var(--cyan);font-weight:700;">${entry.score}</td><td>${entry.correct}/${entry.total}</td><td>${entry.diff}</td>`;
+body.appendChild(tr);
+});
+}
+
+function clearLeaderboard(){
+if(confirm('Hapus semua data leaderboard?')){
+localStorage.removeItem('tkj_leaderboard');
+renderLeaderboard();
+}
+}
+
+// Init
+document.addEventListener('click',()=>initAudio(),{once:true});
+</script>
+</body>
+</html>
