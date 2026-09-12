@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TKJ ADVENTURE - Petualangan Menjadi Network Engineer</title>
+    <style>
+        :root {
+            --cyan: #00ffff;
+            --neon-green: #39ff14;
+            --purple: #b026ff;
+            --dark-bg: #0a0a12;
+            --ui-bg: rgba(10, 10, 18, 0.9);
+        }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--dark-bg);
+            color: white; font-family: 'Courier New', monospace;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+        }
+        #game-container {
+            position: relative; width: 800px; height: 600px;
+            border: 2px solid var(--cyan); box-shadow: 0 0 20px var(--cyan);
+            background: #111;
+        }
+        canvas { display: block; image-rendering: pixelated; }
+        
+        /* UI HUD */
+        #hud {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            display: flex; justify-content: space-between; pointer-events: none;
+            text-shadow: 1px 1px 2px black; font-weight: bold;
+        }
+        .hud-box { background: var(--ui-bg); padding: 5px 10px; border: 1px solid var(--cyan); border-radius: 4px; }
+        
+        /* Menu Utama */
+        #main-menu {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0a0a12 0%, #1a0b2e 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        h1 { color: var(--cyan); font-size: 40px; text-shadow: 0 0 10px var(--cyan); margin-bottom: 5px; }
+        p.subtitle { color: var(--neon-green); margin-bottom: 40px; font-style: italic; }
+        .menu-btn {
+            background: transparent; color: var(--cyan); border: 1px solid var(--cyan);
+            padding: 10px 40px; margin: 5px; font-family: inherit; font-size: 16px;
+            cursor: pointer; transition: 0.3s; width: 250px;
+        }
+        .menu-btn:hover { background: var(--cyan); color: var(--dark-bg); box-shadow: 0 0 15px var(--cyan); }
+        
+        /* Dialog Box RPG */
+        #dialog-box {
+            position: absolute; bottom: 20px; left: 20px; right: 20px;
+            background: var(--ui-bg); border: 2px solid var(--purple);
+            padding: 20px; display: none; z-index: 5; border-radius: 8px;
+            box-shadow: 0 0 15px var(--purple);
+        }
+        .speaker { color: var(--neon-green); font-weight: bold; margin-bottom: 10px; font-size: 18px; }
+        .text { line-height: 1.5; margin-bottom: 15px; min-height: 40px; }
+        .choices { display: flex; flex-direction: column; gap: 5px; }
+        .choice-btn {
+            background: rgba(176, 38, 255, 0.1); border: 1px solid var(--purple);
+            color: white; padding: 8px; cursor: pointer; text-align: left; font-family: inherit;
+        }
+        .choice-btn:hover { background: var(--purple); }
+
+        /* Notifikasi */
+        #notification {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: var(--ui-bg); border: 2px solid var(--neon-green);
+            padding: 20px; display: none; text-align: center; z-index: 6;
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
+        /* Inventory */
+        #inventory-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--ui-bg); display: none; z-index: 8; padding: 20px;
+        }
+        .inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 20px; }
+        .inv-item { border: 1px solid var(--cyan); padding: 10px; text-align: center; background: rgba(0,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <!-- Main Menu -->
+    <div id="main-menu">
+        <h1>🌐 TKJ ADVENTURE</h1>
+        <p class="subtitle">"Your Network. Your Mission. Your Future."</p>
+        <button class="menu-btn" onclick="startGame()">▶️ MULAI PETUALANGAN</button>
+        <button class="menu-btn" onclick="alert('Fitur modul materi akan dibuka di versi penuh!')">📚 BELAJAR</button>
+        <button class="menu-btn" onclick="toggleInventory()">🎒 INVENTORY</button>
+        <button class="menu-btn" onclick="alert('Leaderboard terhubung ke server sekolah.')">🏆 LEADERBOARD</button>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" style="display:none;">
+        <div class="hud-box">Nama: <span id="hud-name">Raka</span></div>
+        <div class="hud-box">Lv.<span id="hud-level">1</span> - <span id="hud-title">TKJ Beginner</span></div>
+        <div class="hud-box">XP: <span id="hud-xp">0</span>/1000</div>
+        <div class="hud-box" style="color:var(--neon-green)">Quest: <span id="hud-quest">Temui Pak Dimas</span></div>
+    </div>
+
+    <!-- Dialog System -->
+    <div id="dialog-box">
+        <div class="speaker" id="d-speaker"></div>
+        <div class="text" id="d-text"></div>
+        <div class="choices" id="d-choices"></div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification">
+        <h2 id="notif-title" style="color:var(--neon-green); margin:0 0 10px 0;"></h2>
+        <p id="notif-text" style="margin:0;"></p>
+    </div>
+
+    <!-- Inventory Screen -->
+    <div id="inventory-screen">
+        <h2 style="color:var(--cyan);">🎒 INVENTORY</h2>
+        <div class="inv-grid" id="inv-grid"></div>
+        <button class="menu-btn" style="margin-top:20px;" onclick="toggleInventory()">TUTUP (I)</button>
+    </div>
+</div>
+
+<script>
+/** 
+ * TKJ ADVENTURE ENGINE
+ * Prototipe Game Edukasi RPG 2D
+ */
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// --- GAME STATE ---
+let gameState = 'MENU'; // MENU, PLAYING, DIALOG, INVENTORY
+let keys = {};
+let xp = 0;
+let level = 1;
+let titles = ["TKJ Beginner", "Cable Apprentice", "Network Explorer", "Junior Technician", "Network Engineer", "Network Master"];
+let inventory = ["🪪 Student Card"];
+let questState = 0; // 0: Meet Dimas, 1: Check PC, 2: Complete
+let isDialogOpen = false;
+
+// --- PLAYER OBJECT ---
+const player = {
+    x: 400, y: 300, w: 32, h: 32, speed: 4, color: '#00ffff', dir: 0,
+    draw() {
+        // Karakter Pixel Art Sederhana (Cyber Style)
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.w, this.h);
+        // Mata
+        ctx.fillStyle = '#000';
+        ctx.fillRect(this.x + 8, this.y + 10, 4, 4);
+        ctx.fillRect(this.x + 20, this.y + 10, 4, 4);
+        // Indikator Jaringan di kepala
+        ctx.fillStyle = '#39ff14';
+        ctx.fillRect(this.x + 12, this.y - 5, 8, 3);
+    },
+    update() {
+        if (isDialogOpen || gameState !== 'PLAYING') return;
+        let moving = false;
+        if (keys['ArrowUp'] || keys['w']) { this.y -= this.speed; this.dir = 1; moving = true; }
+        if (keys['ArrowDown'] || keys['s']) { this.y += this.speed; this.dir = 0; moving = true; }
+        if (keys['ArrowLeft'] || keys['a']) { this.x -= this.speed; this.dir = 2; moving = true; }
+        if (keys['ArrowRight'] || keys['d']) { this.x += this.speed; this.dir = 3; moving = true; }
+
+        // Batas Layar
+        this.x = Math.max(0, Math.min(canvas.width - this.w, this.x));
+        this.y = Math.max(0, Math.min(canvas.height - this.h, this.y));
+    }
+};
+
+// --- NPC OBJECTS ---
+const npcs = [
+    {
+        id: 'dimas', name: 'Pak Dimas (Guru TKJ)', x: 200, y: 200, w: 32, h: 32, color: '#b026ff',
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Courier New';
+            ctx.fillText('P.Dimas', this.x - 5, this.y - 5);
+        }
+    },
+    {
+        id: 'pc_offline', name: 'PC Offline', x: 600, y: 200, w: 40, h: 40, color: '#333',
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+            ctx.fillStyle = questState >= 2 ? '#39ff14' : '#ff0000';
+            ctx.fillRect(this.x + 5, this.y + 5, 30, 20); // Monitor
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Courier New';
+            ctx.fillText(questState >= 2 ? 'ONLINE' : 'ERROR', this.x, this.y - 5);
+        }
+    }
+];
+
+// --- DIALOG SYSTEM DATA ---
+const dialogs = {
+    dimas_0: {
+        speaker: "Pak Dimas",
+        text: "Selamat datang di dunia TKJ, Raka! Hari ini kita akan belajar bagaimana komputer dapat saling terhubung. Tugas pertamamu adalah memeriksa PC di Lab 1 yang tidak terhubung ke jaringan.",
+        choices: [
+            { text: "🔍 \"Baik Pak, saya akan periksa kabel dan port-nya!\"", action: () => { addXP(50); questState = 1; updateHUD(); closeDialog(); showNotif("QUEST UPDATED", "Periksa PC Offline di sebelah kanan!"); } },
+            { text: "❓ \"Apa itu jaringan komputer, Pak?\"", action: () => { triggerDialog('dimas_explain'); } }
+        ]
+    },
+    dimas_explain: {
+        speaker: "Pak Dimas",
+        text: "Jaringan komputer adalah dua atau lebih komputer yang saling dihubungkan untuk berbagi data dan sumber daya. Di SMK, kita belajar LAN, MAN, dan WAN. Sekarang, segera ke PC itu!",
+        choices: [
+            { text: "Siap Pak!", action: () => { questState = 1; updateHUD(); closeDialog(); } }
+        ]
+    },
+    pc_0: {
+        speaker: "Sistem",
+        text: "🔴 NETWORK DISCONNECTED. Komputer ini tidak mendapat akses internet. Apa yang ingin kamu periksa?",
+        choices: [
+            { text: "🔌 Periksa Kabel LAN (T568B)", action: () => { triggerDialog('pc_cable'); } },
+            { text: "💻 Cek IP Address", action: () => { triggerDialog('pc_ip'); } }
+        ]
+    },
+    pc_cable: {
+        speaker: "Raka",
+        text: "Urutan warna kabel UTP T568B: Putih-Oren, Oren, Putih-Hijau, Biru, Putih-Biru, Hijau, Putih-Coklat, Coklat... Tunggu, pin nomor 3 dan 6 tertukar! Saya akan crimping ulang.",
+        choices: [
+            { text: "🔧 Crimping Ulang Kabel (Memperbaiki)", action: () => { completeQuest(); } }
+        ]
+    },
+    pc_ip: {
+        speaker: "Sistem",
+        text: "IP: 192.168.1.20 | Subnet: 255.255.255.0 | Gateway: 192.168.2.1. (Gateway berbeda network ID dengan IP! Seharusnya 192.168.1.1)",
+        choices: [
+            { text: "⚙️ Ubah Gateway menjadi 192.168.1.1", action: () => { completeQuest(); } }
+        ]
+    }
+};
+
+// --- CORE FUNCTIONS ---
+function startGame() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('hud').style.display = 'flex';
+    gameState = 'PLAYING';
+    showNotif("PETUALANGAN DIMULAI", "Gunakan Arrow Keys/WASD untuk bergerak. Tekan SPACE dekat NPC untuk interaksi.");
+    gameLoop();
+}
+
+function addXP(amount) {
+    xp += amount;
+    if (xp >= 1000 && level < 6) {
+        level++;
+        xp = xp - 1000;
+        showNotif(`🎉 LEVEL UP! Lv.${level}`, `Gelar baru: ${titles[level-1]}`);
+        if(level === 2 && !inventory.includes("🔧 Tang Crimping")) inventory.push("🔧 Tang Crimping");
+    }
+    updateHUD();
+}
+
+function updateHUD() {
+    document.getElementById('hud-level').innerText = level;
+    document.getElementById('hud-xp').innerText = xp;
+    document.getElementById('hud-title').innerText = titles[level-1];
+    if(questState === 0) document.getElementById('hud-quest').innerText = "Temui Pak Dimas";
+    else if(questState === 1) document.getElementById('hud-quest').innerText = "Perbaiki PC Offline";
+    else document.getElementById('hud-quest').innerText = "Selesai! Jelajahi Lab.";
+}
+
+function showNotif(title, text) {
+    const n = document.getElementById('notification');
+    document.getElementById('notif-title').innerText = title;
+    document.getElementById('notif-text').innerText = text;
+    n.style.display = 'block';
+    setTimeout(() => { n.style.display = 'none'; }, 3000);
+}
+
+function toggleInventory() {
+    const inv = document.getElementById('inventory-screen');
+    if (inv.style.display === 'block') {
+        inv.style.display = 'none';
+        gameState = 'PLAYING';
+    } else {
+        inv.style.display = 'block';
+        gameState = 'INVENTORY';
+        const grid = document.getElementById('inv-grid');
+        grid.innerHTML = '';
+        inventory.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'inv-item';
+            div.innerText = item;
+            grid.appendChild(div);
+        });
+    }
+}
+
+function completeQuest() {
+    questState = 2;
+    addXP(500);
+    closeDialog();
+    showNotif("🎉 QUEST COMPLETE!", "Jaringan berhasil diperbaiki! +500 XP. Item didapat: 🔌 Kabel UTP");
+    inventory.push("🔌 Kabel UTP");
+    updateHUD();
+}
+
+// --- DIALOG ENGINE ---
+function triggerDialog(id) {
+    isDialogOpen = true;
+    const d = dialogs[id];
+    document.getElementById('dialog-box').style.display = 'block';
+    document.getElementById('d-speaker').innerText = d.speaker;
+    document.getElementById('d-text').innerText = d.text;
+    
+    const choicesDiv = document.getElementById('d-choices');
+    choicesDiv.innerHTML = '';
+    d.choices.forEach(c => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerText = c.text;
+        btn.onclick = c.action;
+        choicesDiv.appendChild(btn);
+    });
+}
+
+function closeDialog() {
+    isDialogOpen = false;
+    document.getElementById('dialog-box').style.display = 'none';
+}
+
+// --- COLLISION DETECTION ---
+function checkInteractions() {
+    if (isDialogOpen) return;
+    
+    npcs.forEach(npc => {
+        let dist = Math.hypot(player.x - npc.x, player.y - npc.y);
+        if (dist < 50) { // Jarak interaksi
+            if (npc.id === 'dimas' && questState === 0) {
+                triggerDialog('dimas_0');
+            } else if (npc.id === 'pc_offline' && questState === 1) {
+                triggerDialog('pc_0');
+            } else if (npc.id === 'pc_offline' && questState === 2) {
+                showNotif("PC ONLINE", "Komputer ini sudah terhubung ke jaringan.");
+            }
+        }
+    });
+}
+
+// --- DRAW WORLD ---
+function drawWorld() {
+    // Lantai Lab Cyber
+    ctx.fillStyle = '#11111a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Grid Cybernetic
+    ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+    for(let i=0; i<canvas.width; i+=40) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); ctx.stroke(); }
+    for(let i=0; i<canvas.height; i+=40) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); ctx.stroke(); }
+
+    // Area Label
+    ctx.fillStyle = 'rgba(0, 255, 255, 0.3)';
+    ctx.font = '40px Courier New';
+    ctx.fillText("LAB KOMPUTER 1", 200, 500);
+
+    // Meja
+    ctx.fillStyle = '#222';
+    ctx.fillRect(150, 250, 150, 40);
+    ctx.fillRect(550, 250, 150, 40);
+}
+
+// --- GAME LOOP ---
+function gameLoop() {
+    if (gameState === 'MENU') return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    drawWorld();
+    
+    npcs.forEach(npc => npc.draw());
+    
+    player.update();
+    player.draw();
+
+    // Hint Interaksi
+    npcs.forEach(npc => {
+        let dist = Math.hypot(player.x - npc.x, player.y - npc.y);
+        if (dist < 50 && !isDialogOpen) {
+            ctx.fillStyle = '#39ff14';
+            ctx.font = '12px Courier New';
+            ctx.fillText("[SPACE] Interaksi", player.x - 20, player.y - 15);
+        }
+    });
+
+    requestAnimationFrame(gameLoop);
+}
+
+// --- INPUT HANDLING ---
+window.addEventListener('keydown', (e) => {
+    keys[e.key.toLowerCase()] = true;
+    if (e.key === ' ') {
+        e.preventDefault();
+        checkInteractions();
+    }
+    if (e.key.toLowerCase() === 'i') {
+        toggleInventory();
+    }
+});
+window.addEventListener('keyup', (e) => { keys[e.key.toLowerCase()] = false; });
+
+</script>
+</body>
+</html>
